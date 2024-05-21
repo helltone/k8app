@@ -2,13 +2,7 @@
 Helm chart for easily manage gitops service
 
 ## Get started
-
-Add this repository to Helm. (GitHub)
-
-```
-helm repo add k8app https://pin-up-global.github.io/k8app
-```
-Add this repository to Helm (GitLab)
+Add this repository to Helm 
 - Authenticate to the Helm repository
 - To authenticate to the Helm repository, you need either:
 - A deploy token with the scope set to read_package_registry
