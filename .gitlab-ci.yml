@@ -1,0 +1,15 @@
+
+stages:
+  - upload
+
+upload:
+  image: 
+    name: alpine/helm:latest
+    entrypoint: ["/bin/sh", "-c"]
+  stage: upload
+  script:
+    - helm package --dependency-update charts/*
+    - helm package charts/*
+    - curl --request POST --user gitlab-ci-token:$CI_JOB_TOKEN --form "chart=@${CI_COMMIT_TAG}.tgz" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/${CI_PROJECT_NAME}/charts"
+  only:
+     - tags
