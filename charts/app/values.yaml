@@ -17,7 +17,7 @@ args: []
 # min HPA replica
 replicas: 1
 buildId:
-serviceAccountName: app  # infra should always create service account "app"
+serviceAccountName: app # infra should always create service account "app"
 deployment:
   enabled: true
 
@@ -36,12 +36,14 @@ service:
 serviceExternal:
   enabled: false
   # Optional annotations to be applied to service (e.g. to set AWS LB attributes)
-  annotations: {}
+  annotations:
+    {}
     # service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "900"
 serviceInternal:
   enabled: false
   # Optional annotations to be applied to service (e.g. to set AWS LB attributes)
-  annotations: {}
+  annotations:
+    {}
     # service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "900"
   ports:
     http:
@@ -80,7 +82,8 @@ prometheus:
   port: "8011"
   path: "/metrics"
 
-resources: {}
+resources:
+  {}
   # requests:
   #   memory: 400Mi
 
@@ -90,7 +93,8 @@ ingress:
   fqdn: ""
   aliases: ""
   vaultCert: ""
-  extraHosts: {}
+  extraHosts:
+    {}
     # "some-host.com":
     #   locations:
     #     "/main":
@@ -113,7 +117,7 @@ ingress:
     #       servicePort: 8889
 
 job:
-# If true, create simple jobs, e.g. migration
+  # If true, create simple jobs, e.g. migration
   enabled: false
   spec: {}
   # printenv:
@@ -128,7 +132,7 @@ cloudflare:
   enabled: false
 
 cronjob:
-# If true, create cron jobs
+  # If true, create cron jobs
   enabled: false
   spec: {}
   # printenv:
@@ -207,11 +211,13 @@ readinessProbe:
     port: 80
 
 secrets: {}
+secrets_files: {}
 configmap: {}
 vaultProjectName: ""
 vaultNamespace: ""
 
-alerting: {}
+alerting:
+  {}
   # rules:
   #   "ContainerWaitingReason":
   #     annotations:
@@ -250,13 +256,15 @@ pdb:
   enabled: false
   maxUnavailable: 1
 
-configfiles: {}
+configfiles:
+  {}
   # mountPath: "/etc/app"
   # data:
   #   config.yaml: |-
   #     foo: bar
 
-extensions: {}
+extensions:
+  {}
   # authz:
   #   image:
   #     repository: "example.org"
