@@ -39,12 +39,14 @@ service:
 serviceExternal:
   enabled: false
   # Optional annotations to be applied to service (e.g. to set AWS LB attributes)
-  annotations: {}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "map-migrated=d-server-03s2g8cnkn7b4b"
     # service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "900"
 serviceInternal:
   enabled: false
   # Optional annotations to be applied to service (e.g. to set AWS LB attributes)
-  annotations: {}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "map-migrated=d-server-03s2g8cnkn7b4b"
     # service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "900"
   ports:
     http:
