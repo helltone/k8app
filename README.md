@@ -18,4 +18,35 @@ Install an example.
 helm install app k8app/app
 ```
 
-## 
+## ArgoCD
+Settings > Repositories > CONNECT REPO
+> Choose your connection method:
+```
+VIA HTTPS
+```
+> CONNECT REPO USING HTTPS
+> type
+```
+helm
+```
+> Name
+```
+k8app
+```
+> Project
+```
+<project_name>
+```
+> Repository URL
+```
+https://gitlab.com/api/v4/projects/58057527/packages/helm/k8app
+```
+> Username
+```
+<token_name>
+```
+> Password
+```
+<token>
+```
+--> CONNECT
