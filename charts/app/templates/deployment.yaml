@@ -73,14 +73,24 @@ spec:
             readOnly: {{.Values.volume.mount.readOnly}}
             claimName: {{template "persistantClaim" . }}
         {{- end -}}
-    {{- if .Values.secrets }}
-        - name: secrets-store-inline
-          csi:
-            driver: secrets-store.csi.k8s.io
-            readOnly: true
-            volumeAttributes:
-              secretProviderClass: {{ $appname }}-aws-secrets
-    {{- end }}
+        {{- if .Values.secrets }}
+            - name: secrets-store-inline
+              csi:
+                driver: secrets-store.csi.k8s.io
+                readOnly: true
+                volumeAttributes:
+                  secretProviderClass: {{ $appname }}-aws-secrets
+        {{- end }}
+        {{- if .Values.secrets_files }}
+        {{- range $key, $value := .Values.secrets_files }}
+            - name: "{{ $appname}}-{{ $key }}-file"
+              csi:
+                driver: secrets-store.csi.k8s.io
+                readOnly: true
+                volumeAttributes:
+                  secretProviderClass: "{{ $appname}}-{{ $key }}-aws-secret"
+        {{- end}}
+        {{- end}}
         {{- if .Values.configfiles }}
         - name: {{ printf "%s-config" $appname  }}
           configMap:
@@ -182,6 +192,13 @@ spec:
           - name: {{ printf "%s-config" $appname }}
             readOnly: true
             mountPath: {{ .Values.configfiles.mountPath }}
+          {{- end }}
+          {{- if .Values.secrets_files }}
+          {{- range $key, $value := .Values.secrets_files }}
+          - name: "{{ $appname}}-{{ $key }}-file"
+            mountPath: "/keys/{{ $key }}"
+            subPath: "{{ $key }}"
+          {{- end }}
           {{- end }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         {{- if .Values.image.pullPolicy }}
