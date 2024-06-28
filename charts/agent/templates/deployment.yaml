@@ -63,8 +63,13 @@ spec:
             - mountPath: /var/lib/docker/containers
               name: varlibdockercontainers
               readOnly: true
-            {{- if .Values.certs }}
+            {{- if and .Values.certs (not .Values.externalSecrets.enabled) }}
             - name: certs
+              mountPath: "/certs"
+            {{- end }}
+            {{- if .Values.externalSecrets.enabled }}
+            - name: otel-certs
+              readOnly: true
               mountPath: "/certs"
             {{- end }}
             - mountPath: /etc/otelcol-contrib/
@@ -79,14 +84,19 @@ spec:
         - name: varlibdockercontainers
           hostPath:
             path: /var/lib/docker/containers
-    {{- if .Values.certs }}
+        {{- if and .Values.certs (not .Values.externalSecrets.enabled) }}
         - name: certs
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
               secretProviderClass: {{ include "agent.fullname" . }}-certs
-    {{- end }}
+        {{- end }}
+        {{- if .Values.externalSecrets.enabled }}
+        - name: otel-certs
+          secret:
+            secretName: {{ .Values.externalSecrets.secretName | default "otel-certs" }}
+        {{- end }}
         - name: data
           configMap:
             name: {{ include "agent.fullname" . }}

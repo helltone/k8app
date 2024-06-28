@@ -71,7 +71,16 @@ resources:
     memory: 0.5Gi
 tolerations: []
 
-# required AWS SSM parameter store certificates
+# If set to true this value tells pods to use a secret created by external-secrets app storing ca.crt, client.crt, client.key
+# This value is used for k8s clusters outside of EKS that cannot use csi-secret-store driver and use external-secrets instead  
+externalSecrets:
+  enabled: false
+  # Name of secret that was created by external-secrets and will be mounted into pods as volume
+  # A default value "otel-certs" will be used if left empty
+  secretName:
+
+# This value used to mount csi-secret-store driver with these secrets, which is a default behaviour
+# It will not be used if externalSecrets.enabled is set to true
 certs:
   "ca.crt": "ca.crt"
   "client.crt": "client.crt"

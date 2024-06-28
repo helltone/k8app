@@ -8,9 +8,17 @@ certs:
   "client.key": "client.key"
 ```
 
+Requires installation of "AWS Secrets Manager and Config Provider for Secret Store CSI Driver" https://github.com/aws/secrets-store-csi-driver-provider-aws
 
-required installed "AWS Secrets Manager and Config Provider for Secret Store CSI Driver"
-https://github.com/aws/secrets-store-csi-driver-provider-aws
+You can also use install [external-secrets](https://external-secrets.io/latest/introduction/getting-started/) and use these values to mount the same .crt and .key as secret:
+
+```yaml
+externalSecrets:
+  enabled: true
+  # Name of secret that was created by external-secrets and will be mounted into pods as volume
+  # A default value "otel-certs" will be used if left empty
+  secretName:
+```
 
 EKS scraping based on: https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
 boards: https://github.com/prometheus-community/helm-charts/tree/eba5b198f597a39f2d40d3edd209dfa09429623e/charts/kube-prometheus-stack/templates/grafana
