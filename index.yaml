@@ -2,6 +2,17 @@ apiVersion: v1
 entries:
   app:
   - apiVersion: v2
+    created: "2024-07-01T17:00:23.590024309Z"
+    description: Deployment for base pinup app
+    digest: 05a01fed0571b33ac9d7ce063386d83072131da17bb848382b55e080d467e4c1
+    maintainers:
+    - email: d7561985@gmail.com
+      name: DevOps
+    name: app
+    urls:
+    - https://github.com/helltone/k8app/releases/download/app-3.3.8/app-3.3.8.tgz
+    version: 3.3.8
+  - apiVersion: v2
     created: "2024-07-01T16:30:33.382348555Z"
     description: Deployment for base pinup app
     digest: c003617431a8909ecc1d21b816dd5fdb022513b692b4c1e767e76adad6c0d142
@@ -56,4 +67,4 @@ entries:
     urls:
     - https://github.com/helltone/k8app/releases/download/app-3.3.3/app-3.3.3.tgz
     version: 3.3.3
-generated: "2024-07-01T16:30:33.382373462Z"
+generated: "2024-07-01T17:00:23.590050548Z"
