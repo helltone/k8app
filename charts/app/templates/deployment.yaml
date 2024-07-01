@@ -196,7 +196,7 @@ spec:
           {{- if .Values.secrets_files }}
           {{- range $key, $value := .Values.secrets_files }}
           - name: "{{ $appname}}-{{ $key }}-file"
-            mountPath: "/keys/"
+            mountPath: "/keys/{{ $value.file}}"
             subPath: "{{ $value.file }}"
           {{- end }}
           {{- end }}
