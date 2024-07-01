@@ -197,7 +197,7 @@ spec:
           {{- range $key, $value := .Values.secrets_files }}
           - name: "{{ $appname}}-{{ $key }}-file"
             mountPath: "/keys/"
-            subPath: "{{ $key.file }}"
+            subPath: "{{ $value.file }}"
           {{- end }}
           {{- end }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
