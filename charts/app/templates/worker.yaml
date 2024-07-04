@@ -54,6 +54,11 @@ spec:
             volumeAttributes:
               secretProviderClass: {{ $appname }}-aws-secrets
         {{- end }}
+        {{- if $root.Values.secretsExternal }}          
+        - name: {{ $appname }}-external-secrets-ssm
+          secret:
+            secretName: {{ $appname }}-external-secrets-ssm              
+        {{- end }}          
       containers:
       - env:
         - name: BUILD_ID
@@ -67,6 +72,15 @@ spec:
               name: {{ $appname }}
     {{- end }}
     {{- end }}
+    {{- if $root.Values.secretsExternal }}
+    {{- range $key, $value := $root.Values.secretsExternal }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              key: {{ $key }}
+              name: {{ $appname }}-external-secrets-ssm
+    {{- end }}
+    {{- end }}    
     {{- if $root.Values.configmap }}
         envFrom:
         - configMapRef:
@@ -81,6 +95,11 @@ spec:
           - name: secrets-store-inline
             mountPath: "/mnt/secrets-store"
           {{- end }}
+          {{- if $root.Values.secretsExternal }}  
+          - name: {{ $appname }}-external-secrets-ssm
+            readOnly: true
+            mountPath: "/mnt/external-secrets-ssm"            
+          {{- end }}          
         image: {{ $root.Values.image.repository }}:{{ $root.Values.image.tag }}
         imagePullPolicy: Always
         name: {{ $appname }}-{{ $workerName }}

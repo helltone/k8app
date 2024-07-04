@@ -2,6 +2,9 @@
 
 ## app
 
+### 3.4.0
+* kind: ExternalSecret for app and agent, secrets via Values.secretsExternal
+
 ### 3.1.31
 * kubernetes-pods obtain cluster and component lables
 

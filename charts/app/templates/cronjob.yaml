@@ -31,14 +31,19 @@ spec:
         {{- else if $.Values.rbac.create }}
           serviceAccountName: {{ $.Release.Namespace }}-{{ $appname }}
         {{- end }}
-        {{- if $.Values.secrets }}
           volumes:
+        {{- if $.Values.secrets }}
             - name: secrets-store-inline
               csi:
                 driver: secrets-store.csi.k8s.io
                 readOnly: true
                 volumeAttributes:
                   secretProviderClass: {{ $appname }}-aws-secrets
+        {{- end }}
+        {{- if $.Values.secretsExternal }}
+            - name: {{ $appname }}-external-secrets-ssm
+              secret:
+                secretName: {{ $appname }}-external-secrets-ssm
         {{- end }}
           containers:
           - name: "{{ $key }}"
@@ -57,7 +62,7 @@ spec:
             {{- end }}
             env:
             - name: BUILD_ID
-              value: {{ $root.Values.buildId | quote | default "000" }}
+              value: {{ $root.Values.buildId | default "000" | quote }}
             - name: SENTRY_ENVIRONMENT
               value: {{ $root.Values.environment | quote }}
             - name: SENTRY_RELEASE
@@ -86,11 +91,26 @@ spec:
                   name: "{{ $appname }}"
             {{- end }}
             {{- end }}
+            {{- if $root.Values.secretsExternal }}
+            {{- range $key, $value := $root.Values.secretsExternal }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $appname }}-external-secrets-ssm
+            {{- end }}
+            {{- end }}            
         {{- if $.Values.secrets }}
             volumeMounts:
               - name: secrets-store-inline
                 mountPath: "/mnt/secrets-store"
         {{- end }}
+        {{- if $root.Values.secretsExternal }}  
+            volumeMounts:
+              - name: {{ $appname }}-external-secrets-ssm
+                readOnly: true
+                mountPath: "/mnt/external-secrets-ssm"            
+        {{- end }}         
             image: "{{ $root.Values.image.repository }}:{{ $root.Values.image.tag }}"
             imagePullPolicy: Always
         {{- if $root.Values.nodeSelector }}

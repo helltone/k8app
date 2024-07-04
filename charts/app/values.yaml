@@ -214,6 +214,11 @@ readinessProbe:
   tcpSocket:
     port: 80
 
+#In  case if external-secrets secrets should be passed through secretsExternal
+#
+#secretsExternal: 
+#  SECRET: "/path/in/ssm"
+secretsExternal: {}
 secrets: {}
 configmap: {}
 vaultProjectName: ""

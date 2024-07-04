@@ -42,6 +42,12 @@ spec:
             volumeAttributes:
               secretProviderClass: {{ $appname }}-aws-secrets
     {{- end }}
+    {{- if $.Values.secretsExternal }}          
+      volumes:
+        - name: {{ $appname }}-external-secrets-ssm
+          secret:
+            secretName: {{ $appname }}-external-secrets-ssm              
+    {{- end }}     
       containers:
       - name: "{{ $key }}"
         command: 
@@ -69,11 +75,26 @@ spec:
               name: "{{ $appname }}"
         {{- end }}
         {{- end }}
+        {{- if $.Values.secretsExternal }}
+        {{- range $key, $value := $.Values.secretsExternal }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              key: {{ $key }}
+              name: {{ $appname }}-external-secrets-ssm
+        {{- end }}
+        {{- end }}        
     {{- if $.Values.secrets }}
         volumeMounts:
           - name: secrets-store-inline
             mountPath: "/mnt/secrets-store"
     {{- end }}
+    {{- if $.Values.secretsExternal }}  
+        volumeMounts: 
+          - name: {{ $appname }}-external-secrets-ssm
+            readOnly: true
+            mountPath: "/mnt/external-secrets-ssm"            
+    {{- end }}     
         image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
         imagePullPolicy: Always
     {{- if $.Values.nodeSelector }}

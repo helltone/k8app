@@ -92,6 +92,11 @@ spec:
             volumeAttributes:
               secretProviderClass: {{ $appname }}-aws-secrets
     {{- end }}
+    {{- if .Values.secretsExternal }}          
+        - name: {{ $appname }}-external-secrets-ssm
+          secret:
+            secretName: {{ $appname }}-external-secrets-ssm              
+    {{- end }}    
         {{- if .Values.configfiles }}
         - name: {{ printf "%s-config" $appname  }}
           configMap:
@@ -123,6 +128,15 @@ spec:
                   name: {{ $appname }}
       {{- end }}
       {{- end }}
+      {{- if .Values.secretsExternal }}
+      {{- range $key, $value := .Values.secretsExternal }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ $key }}
+                name: {{ $appname }}-external-secrets-ssm
+      {{- end }}
+      {{- end }}        
       {{- if .Values.configmap }}
           envFrom:
             - configMapRef:
@@ -138,6 +152,11 @@ spec:
             - name: secrets-store-inline
               mountPath: "/mnt/secrets-store"
             {{- end }}
+            {{- if .Values.secretsExternal }}  
+            - name: {{ $appname }}-external-secrets-ssm
+              readOnly: true
+              mountPath: "/mnt/external-secrets-ssm"            
+            {{- end }}             
       {{- end }}
       containers:
       - env:
@@ -173,6 +192,15 @@ spec:
               name: {{ $appname }}
     {{- end }}
     {{- end }}
+    {{- if .Values.secretsExternal }}
+    {{- range $key, $value := .Values.secretsExternal }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              key: {{ $key }}
+              name: {{ $appname }}-external-secrets-ssm
+    {{- end }}
+    {{- end }}     
     {{- if .Values.configmap }}
         envFrom:
         - configMapRef:
@@ -189,6 +217,11 @@ spec:
             readOnly: true
             mountPath: "/mnt/secrets-store"
           {{- end }}
+          {{- if .Values.secretsExternal }}  
+          - name: {{ $appname }}-external-secrets-ssm
+            readOnly: true
+            mountPath: "/mnt/external-secrets-ssm"            
+          {{- end }}          
           {{- if .Values.configfiles }}
           - name: {{ printf "%s-config" $appname }}
             readOnly: true
@@ -309,6 +342,15 @@ spec:
                 key: {{ $key }}
                 name: {{ $appname }}
         {{- end }}
+        {{- if .Values.secretsExternal }}
+        {{- range $key, $value := .Values.secretsExternal }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  key: {{ $key }}
+                  name: {{ $appname }}-external-secrets-ssm
+        {{- end }}
+        {{- end }}         
         {{- if $spec.lifecycle }}
         lifecycle:
           {{- toYaml $spec.lifecycle | nindent 10 }}
