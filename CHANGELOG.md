@@ -2,6 +2,9 @@
 
 ## app
 
+### 3.4.1
+* service-external and service-internel templates now support defining a type, LoadBalancer is default for backwards compatibility 
+
 ### 3.4.0
 * kind: ExternalSecret for app and agent, secrets via Values.secretsExternal
 

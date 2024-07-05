@@ -22,10 +22,11 @@ spec:
     protocol: {{ $value.protocol }}
     name: {{ $key }}
   {{- end }}
-  {{- if .Values.serviceInternal.loadBalancerIP }}
+  {{-  $serviceType := .Values.serviceInternal.serviceType -}}
+  {{- if and .Values.serviceInternal.loadBalancerIP (or (eq $serviceType "LoadBalancer") (empty $serviceType)) }}
   loadBalancerIP: {{ .Values.serviceInternal.loadBalancerIP }}
   {{- end -}}
-  {{- if .Values.serviceInternal.loadBalancerSourceRanges}}
+  {{- if and .Values.serviceInternal.loadBalancerSourceRanges (or (eq $serviceType "LoadBalancer") (empty $serviceType)) }}
   loadBalancerSourceRanges:
   {{- range .Values.serviceInternal.loadBalancerSourceRanges }}
   - {{ . }}
@@ -35,5 +36,5 @@ spec:
     app: {{ template "name" . }}
     release: "{{ .Release.Name }}"
   sessionAffinity: None
-  type: LoadBalancer
+  type: {{ $serviceType | default "LoadBalancer" }}
 {{- end -}}
