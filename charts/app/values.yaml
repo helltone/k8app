@@ -20,6 +20,20 @@ buildId:
 serviceAccountName: app  # infra should always create service account "app"
 deployment:
   enabled: true
+  affinity:
+    enabled: true
+    values: |
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 1
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - {{ include "name" . }}
+            topologyKey: "kubernetes.io/hostname"
 
 podAnnotations: {}
 
