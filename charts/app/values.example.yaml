@@ -57,6 +57,20 @@ tolerations:
     effect: "NoSchedule"
 
 ingress:
+  v2:
+    nginx-internal:
+      annotations:
+        key1: value1
+        key2: value2
+      hosts:
+        app.product.internal:
+          /*: &bakend-config
+            service:
+              name: test-sv
+              port:
+                number: 8888
+          /healz: *bakend-config
+
   enabled: true
   extraHosts:
     "some-host.com":

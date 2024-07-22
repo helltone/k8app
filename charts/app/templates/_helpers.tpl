@@ -50,3 +50,9 @@ Expand the vault project name of the release
 {{- define "persistantClaim" -}}
 {{- printf "%s-claim" (include "name" .) -}}
 {{- end -}}
+
+{{- define "labels" }}
+app: {{ template "name" . }}
+chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+release: "{{ .Release.Name }}"
+{{- end -}}

@@ -21,8 +21,7 @@ serviceAccountName: app  # infra should always create service account "app"
 deployment:
   enabled: true
 
-podAnnotations:
-  extra.io/path: "/call/me"
+podAnnotations: {}
 
 rbac:
   create: false
@@ -93,6 +92,18 @@ resources: {}
   #   memory: 400Mi
 
 ingress:
+  # -- Ingress implementation with support of multiple ingress classes
+  # designed for use with nginx-internal ingress controller and external-dns:
+  # https://gitlab.com/Pin-up-global/infrastructure/terraform/modules/aws/internal-dns
+  # Does not interfere with other ingress values attributes.
+  # Resource ref: https://kubernetes.io/docs/concepts/services-networking/ingress
+  v2: {}
+    # [ingress-class-name]:
+    #   annotations: {}
+    #   hosts:
+    #     [hostname.com]:
+    #       [path_Exact]: {<backend-config>}
+    #       [path_Prefix]*: {<backend-config>}
   enabled: false
   className: ""
   fqdn: ""

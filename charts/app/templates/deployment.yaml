@@ -32,7 +32,7 @@ spec:
       annotations:
     {{- with .Values.podAnnotations }}
       {{- toYaml . | nindent 8 }}
-    {{- end }}      
+    {{- end }}
     {{- if .Values.branch }}
         app/branch: {{ default "" .Values.branch |quote }}
     {{- end }}
@@ -342,8 +342,8 @@ spec:
                 key: {{ $key }}
                 name: {{ $appname }}
         {{- end }}
-        {{- if .Values.secretsExternal }}
-        {{- range $key, $value := .Values.secretsExternal }}
+        {{- if $.Values.secretsExternal }}
+        {{- range $key, $value := $.Values.secretsExternal }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:

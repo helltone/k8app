@@ -1,0 +1,31 @@
+{{- range $ingressClassName, $ingress := .Values.ingress.v2 }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  {{- with $ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{ end }}
+  labels:
+    {{- include "labels" $ | indent 4 }}
+  name: {{ template "name" $ }}-{{ $ingressClassName }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  ingressClassName: {{ $ingressClassName }}
+  rules:
+  {{- range $host, $paths := $ingress.hosts }}
+  - host: {{ $host }}
+    http:
+      paths:
+      {{- range $path, $backend := $paths }}
+      - backend:
+          {{- toYaml . | nindent 10 }}
+        path: {{ regexReplaceAll  "\\*$" $path "" }}
+        {{- if regexMatch "^.*\\*$" $path }}
+        pathType: Prefix
+        {{- else }}
+        pathType: Exact
+        {{- end }}
+      {{- end }}
+  {{- end }}
+{{- end }}
