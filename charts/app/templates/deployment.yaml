@@ -331,11 +331,11 @@ spec:
         {{- end }}
         {{- if $.Values.secretsExternal }}
         {{- range $key, $value := $.Values.secretsExternal }}
-            - name: {{ $key }}
-              valueFrom:
-                secretKeyRef:
-                  key: {{ $key }}
-                  name: {{ $appname }}-external-secrets-ssm
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ $key }}
+                name: {{ $appname }}-external-secrets-ssm
         {{- end }}
         {{- end }}         
         {{- if $spec.lifecycle }}
