@@ -17,7 +17,8 @@ clickhouseServer:
   shardsCount: 1
   replicasCount: 2
   accessSecret: "" #defined in _helpers.tpl
-  awsSecretManagerPath: "" # NOTE: PLEASE SET VARIABLE. E.q.: poc/clickhouse-in-k8s/clickhouse-abc
+  externalSecretService: ParameterStore #SecretsManager
+  externalSecretPath: "" # NOTE: PLEASE SET VARIABLE. E.q.: /poc/clickhouse-in-k8s/clickhouse-abc
   volumes:
     dataVolume:
       size: 10Gi

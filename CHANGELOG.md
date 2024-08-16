@@ -86,5 +86,8 @@
 
 ## Clickhouse
 
+### 0.0.2
+* Added usage AWS Parameter Store or AWS Secret Manager
+
 ### 0.0.1
 * Added first clickhouse chart
