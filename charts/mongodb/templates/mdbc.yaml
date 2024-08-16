@@ -1,0 +1,96 @@
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: {{ .Values.MongoDBCommunity.name }}
+  namespace: {{ .Values.MongoDBCommunity.namespace }}
+  annotations: 
+    {{- range $key, $value := .Values.MongoDBCommunity.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  statefulSet:
+    spec:
+      template:
+        spec:
+          serviceAccountName: {{ .Values.MongoDBCommunity.name }}
+          serviceAccount: {{ .Values.MongoDBCommunity.name }}
+          affinity:
+            podAntiAffinity:
+            {{- if .Values.MongoDBCommunity.affinity.podAffinityRequired }}
+              requiredDuringSchedulingIgnoredDuringExecution:
+            {{- else }}
+              preferredDuringSchedulingIgnoredDuringExecution:
+            {{- end }}
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - {{ .Values.MongoDBCommunity.name }}-svc
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            - name: mongodb-agent
+              readinessProbe:
+                failureThreshold: {{ .Values.MongoDBCommunity.readinessProbe.failureThreshold }}
+                initialDelaySeconds: {{ .Values.MongoDBCommunity.readinessProbe.initialDelaySeconds }}
+            - name: mongod
+              {{- if .Values.MongoDBCommunity.resources }}
+              resources: {{- toYaml .Values.MongoDBCommunity.resources | nindent 16 }}
+              {{- end }}
+          {{- if .Values.MongoDBCommunity.tolerations }}
+          tolerations:
+          {{- toYaml .Values.MongoDBCommunity.tolerations | nindent 12 }}
+          {{- end }}
+          {{- if .Values.operator.nodeSelector }}
+          nodeSelector:
+            {{- toYaml .Values.operator.nodeSelector | nindent 8 }}
+          {{- end }}
+          {{- if .Values.MongoDBCommunity.imagePullSecret }}
+          imagePullSecrets:
+            - name: {{ .Values.MongoDBCommunity.imagePullSecret }}
+          {{- end }}
+      volumeClaimTemplates:
+        - metadata:
+            name: {{ .Values.MongoDBCommunity.storage.name }}
+          spec:
+            resources:
+              requests:
+                storage: {{ .Values.MongoDBCommunity.storage.size }}
+            storageClassName: {{ .Values.MongoDBCommunity.storage.storageClassName }}
+  members: {{ .Values.MongoDBCommunity.members }}
+  type: ReplicaSet
+  version: "{{ .Values.MongoDBCommunity.version }}"
+  security:
+    authentication:
+      modes:
+{{- range .Values.MongoDBCommunity.security.authentication.modes }}
+        - {{ . }}
+{{- end }}
+{{- if .Values.MongoDBCommunity.monitoring.enabled }}
+  prometheus:
+    username: {{ .Values.MongoDBCommunity.monitoring.username }}
+    passwordSecretRef:
+      name: {{ .Values.extSecrets.monitoringCredsName }}
+      key: {{ .Values.extSecrets.monitoringCredsKey }}
+{{- end }}
+{{- if .Values.MongoDBCommunity.users }}
+  users:
+{{- range .Values.MongoDBCommunity.users }}
+    - name: {{ .name }}
+      db: {{ .db }}
+      passwordSecretRef:
+        name: {{ .passwordSecretRef.name }}
+        key: {{ .passwordSecretRef.key }}
+      roles:
+{{- range .roles }}
+        - name: {{ .name }}
+          db: {{ .db }}
+{{- end }}
+      scramCredentialsSecretName: {{ .scramCredentialsSecretName }}
+{{- end }}
+{{- end }}
+  additionalMongodConfig:
+    storage.wiredTiger.engineConfig.journalCompressor: {{ .Values.MongoDBCommunity.additionalMongodConfig.journalCompressor }}

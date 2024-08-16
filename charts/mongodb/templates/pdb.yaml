@@ -1,0 +1,11 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Values.MongoDBCommunity.name }}
+  namespace: {{ .Values.MongoDBCommunity.namespace }} 
+spec:
+  minAvailable: {{ .Values.MongoDBCommunity.pdb.minAvailable  | default "2" }}
+  selector:
+    matchLabels:
+      app: {{ .Values.MongoDBCommunity.name }}-svc

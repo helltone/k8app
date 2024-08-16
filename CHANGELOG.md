@@ -78,3 +78,8 @@
 ### 0.5.18
 * not use prometheus reseiver
 * tune otlp connection
+
+## MongoDB
+
+### 0.0.1
+* Added first MongoDB chart

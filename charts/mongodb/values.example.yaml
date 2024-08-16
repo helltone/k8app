@@ -1,0 +1,48 @@
+mongodb:
+  MongoDBCommunity: 
+    annotations:  
+      argocd.argoproj.io/sync-wave: "3"
+    name: mongodb-database-k8app
+    namespace: mongodb-database-k8app
+    members: 3
+    version: "6.0.5"
+    security:
+      authentication:
+        modes: ["SCRAM"]
+    additionalMongodConfig:
+      journalCompressor: zlib
+  
+    monitoring:
+      enabled: false
+      username: monitoring-username
+  
+    tolerations: 
+      - key: "type"
+        operator: "Equal"
+        value: "mongo-db"
+        effect: "NoSchedule"
+  
+    resources: []
+  
+    affinity:
+      podAffinityRequired: false
+  
+    
+    storage:
+      name: data-volume
+      size: 10Gi
+  
+    readinessProbe:
+      failureThreshold: 60
+      initialDelaySeconds: 30
+      
+    pdb:
+      minAvailable: 2
+
+  extSecrets:
+    enabled: true
+    awsRegion: eu-central-1
+    awsService: SecretsManager #ParameterStore
+    monitoringCredsName: metrics-endpoint-password
+    monitoringCredsKey: password
+    awsSecretPathMonitoringCreds: "" #Name of AWS secret in Secret Manager/SSM

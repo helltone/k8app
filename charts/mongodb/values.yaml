@@ -1,0 +1,68 @@
+
+MongoDBCommunity: 
+  annotations:  
+    argocd.argoproj.io/sync-wave: "3"
+  name: mongodb-database-k8app
+  namespace: mongodb-database-k8app
+  members: 3
+  version: "6.0.5"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: admin
+      db: admin
+      passwordSecretRef:
+        awsSecretPath: poc/mongodb-passwod
+        name: mongodb-password
+        key: admin_password
+      roles:
+        - name: clusterAdmin
+          db: admin
+      scramCredentialsSecretName: admin-scram
+    - name: admin2
+      db: admin2
+      passwordSecretRef:
+        awsSecretPath: poc/mongodb-password
+        name: mongodb-password2
+        key: admin_password
+      roles:
+        - name: clusterAdmin
+          db: admin
+      scramCredentialsSecretName: admin-scram
+  additionalMongodConfig:
+    journalCompressor: zlib
+
+  monitoring:
+    enabled: true
+    username: monitoring
+
+  tolerations: 
+    - key: "type"
+      operator: "Equal"
+      value: "mongo-db"
+      effect: "NoSchedule"
+
+  resources: []
+
+  affinity:
+    podAffinityRequired: false
+
+  
+  storage:
+    name: data-volume
+    size: 10Gi
+
+  readinessProbe:
+    failureThreshold: 60
+    initialDelaySeconds: 30
+    
+  pdb:
+    minAvailable: 2
+extSecrets:
+  enabled: true
+  awsRegion: eu-central-1
+  awsService: SecretsManager #ParameterStore
+  awsSecretPathMonitoringCreds: poc/monitoring-secret
+  monitoringCredsName: metrics-endpoint-password
+  monitoringCredsKey: password
