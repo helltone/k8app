@@ -1,0 +1,8 @@
+<clickhouse>
+    <dictionary>
+        <!-- Your dictionary configuration here -->
+    </dictionary>
+    <dictionary>
+        <!-- Your dictionary configuration here -->
+    </dictionary>
+</clickhouse>

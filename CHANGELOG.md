@@ -83,3 +83,8 @@
 
 ### 0.0.1
 * Added first MongoDB chart
+
+## Clickhouse
+
+### 0.0.1
+* Added first clickhouse chart

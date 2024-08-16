@@ -1,0 +1,95 @@
+storageClass: clickhouse-sc
+region: eu-central-1
+
+imagePullSecret:
+  enabled: false
+  name: "" #defined in _helpers.tpl
+
+ingress:
+  enabled: true
+  name: "" #defined in _helpers.tpl
+  ingressClass: nginx-external
+  hostname: "" # NOTE: PLEASE SET VARIABLE. E.q.: clickhouse-abc.dosvc-40.pin-up.dev
+
+clickhouseServer:
+  image: clickhouse/clickhouse-server:24.6.2.17
+  clusterName: "" # NOTE: PLEASE SET VARIABLE. E.q.: clickhouse-abc
+  shardsCount: 1
+  replicasCount: 2
+  accessSecret: "" #defined in _helpers.tpl
+  awsSecretManagerPath: "" # NOTE: PLEASE SET VARIABLE. E.q.: poc/clickhouse-in-k8s/clickhouse-abc
+  volumes:
+    dataVolume:
+      size: 10Gi
+    logVolume:
+      size: 10Gi
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 1
+    limits:
+      memory: 2Gi
+      cpu: 2
+  nodeSelector:
+    type: db # NOTE: PLEASE SET VARIABLE.
+  tolerations:
+    - key: "type" # NOTE: PLEASE SET VARIABLE.
+      operator: "Equal"
+      value: "db" # NOTE: PLEASE SET VARIABLE.
+      effect: "NoSchedule"
+  terminationGracePeriodSeconds: 120
+  shutdownWaitUnfinished: 60
+  settings:
+    configMap:
+      name: "" #defined in _helpers.tpl
+      logRotationConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
+      storageConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
+      dictionaryConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
+
+backup:
+  enabled: false # NOTE: PLEASE CHOOSE IF YOU PLAN TO HAVE BACKUPS
+  clickhouseBackupServer:
+    serviceAccount: "" #defined in _helpers.tpl
+    backupBucket: "" # NOTE: PLEASE SET VARIABLE. E.q.: clickhouse-backup-tests-poc
+    backupBucketRegion: eu-central-1
+    backupBucketDebug: false
+    logLevel: info
+    backupIamRole: "" # NOTE: PLEASE SET VARIABLE. E.q.: arn:aws:iam::XXXXXXXXXXX:role/eks-devops-service-poc-dev-clickhouse-backup-iam-role
+    backupImage: altinity/clickhouse-backup:2.5.27
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Gi
+        cpu: 200m
+    watchInterval: "1h"
+    fullInterval: "24h"
+    keepLocal: "1"
+    keepRemote: "24"
+#    maxFileSize: "1073741824"
+    allowEmptyBackups: true # NOTE: Need to be set as TRUE for first run Clickhouse Backup Server
+
+clickhouseKeeper:
+  clusterName: "" #defined in _helpers.tpl
+  image: clickhouse/clickhouse-keeper:24.6.2.17
+  replicasCount: 3
+  volumes:
+    dataVolume:
+      size: 10Gi
+    logVolume:
+      size: 10Gi
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+  nodeSelector:
+    type: db # NOTE: PLEASE SET VARIABLE.
+  tolerations:
+    - key: "type" # NOTE: PLEASE SET VARIABLE.
+      operator: "Equal"
+      value: "db" # NOTE: PLEASE SET VARIABLE.
+      effect: "NoSchedule"

@@ -1,0 +1,85 @@
+apiVersion: "clickhouse-keeper.altinity.com/v1"
+kind: "ClickHouseKeeperInstallation"
+metadata:
+  name: {{ template "clickhouse-keeper-cluster.name" . }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  configuration:
+    clusters:
+      - name: {{ template "clickhouse-keeper-cluster.name" . }}
+        layout:
+          replicasCount: {{ .Values.clickhouseKeeper.replicasCount }}
+    settings:
+      logger/level: "trace"
+      logger/console: "true"
+      listen_host: "0.0.0.0"
+      keeper_server/storage_path: /var/lib/clickhouse-keeper
+      keeper_server/tcp_port: "2181"
+      keeper_server/four_letter_word_white_list: "*"
+      keeper_server/coordination_settings/raft_logs_level: "information"
+      keeper_server/raft_configuration/server/port: "9444"
+      prometheus/endpoint: "/metrics"
+      prometheus/port: "7000"
+      prometheus/metrics: "true"
+      prometheus/events: "true"
+      prometheus/asynchronous_metrics: "true"
+      prometheus/status_info: "false"
+      grpc/enable_ssl: "false"
+      grpc/ssl_require_client_auth: "false"
+      grpc/verbose_logs: "false"
+  templates:
+    podTemplates:
+      - name: keepeer-pod-template
+#        metadata:
+#          annotations:
+#            prometheus.io/scrape: 'true'
+#            prometheus.io/port: '7000'
+#            prometheus.io/path: '/metrics'
+        spec:
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 101
+            fsGroup: 101
+          {{- if .Values.clickhouseKeeper.tolerations }}
+          tolerations:
+          {{ toYaml .Values.clickhouseKeeper.tolerations | nindent 12 }}
+          {{- end }}
+          {{- if .Values.clickhouseKeeper.nodeSelector }}
+          nodeSelector:
+          {{ toYaml .Values.clickhouseKeeper.nodeSelector | nindent 12 }}
+          {{- end }}
+          securityContext:
+            runAsUser: 101
+            runAsGroup: 101
+            fsGroup: 101
+          imagePullSecrets:
+            - name: {{ .Values.imagePullSecret }}
+          containers:
+            - name: clickhouse-keeper
+              imagePullPolicy: IfNotPresent
+              image: {{ .Values.clickhouseKeeper.image }}
+              resources:
+                requests:
+                  memory: {{ .Values.clickhouseKeeper.resources.requests.memory }}
+                  cpu: {{ .Values.clickhouseKeeper.resources.requests.cpu }}
+                limits:
+                  memory: {{ .Values.clickhouseKeeper.resources.limits.memory }}
+                  cpu: {{ .Values.clickhouseKeeper.resources.limits.cpu }}
+    volumeClaimTemplates:
+      - name: log-storage-path
+        spec:
+          storageClassName: {{ .Values.storageClass }}
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ .Values.clickhouseKeeper.volumes.logVolume.size }}
+      - name: snapshot-storage-path
+        spec:
+          storageClassName: {{ .Values.storageClass }}
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ .Values.clickhouseKeeper.volumes.dataVolume.size }}

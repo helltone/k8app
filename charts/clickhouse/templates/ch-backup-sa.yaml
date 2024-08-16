@@ -1,0 +1,8 @@
+{{- if .Values.backup.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ template "clickhouse-backup-service-account.name" . }}
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.backup.clickhouseBackupServer.backupIamRole }}
+{{- end }}

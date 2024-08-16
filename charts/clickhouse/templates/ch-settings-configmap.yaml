@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "clickhouse-settings-configmap.name" . }}
+data:
+  log_rotation.xml: |
+    {{ .Values.clickhouseServer.settings.configMap.logRotationConfig | default (.Files.Get "configs/log_rotation.xml") | nindent 4 }}
+  storage.xml: |
+    {{ .Values.clickhouseServer.settings.configMap.storageConfig | default (.Files.Get "configs/storage.xml") | nindent 4 }}
+  dictionary.xml: |
+    {{ .Values.clickhouseServer.settings.configMap.dictionaryConfig | default (.Files.Get "configs/dictionary.xml") | nindent 4 }}

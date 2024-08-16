@@ -1,0 +1,214 @@
+apiVersion: "clickhouse.altinity.com/v1"
+kind: "ClickHouseInstallation"
+metadata:
+  name: {{ .Values.clickhouseServer.clusterName }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  defaults:
+    templates:
+      dataVolumeClaimTemplate: data-volume-template
+      logVolumeClaimTemplate: log-volume-template
+      serviceTemplate: svc-template
+      podTemplate: clickhouse
+  configuration:
+    settings:
+      shutdown_wait_unfinished: {{ .Values.clickhouseServer.shutdownWaitUnfinished }}
+      shutdown_wait_unfinished_queries: 1
+      dictionaries_config: dicts/*.xml
+    zookeeper:
+      nodes:
+        - host: {{ template "clickhouse-keeper-cluster.name" . }}
+          port: 2181
+    users:
+      admin/k8s_secret_password:
+        valueFrom:
+          secretKeyRef:
+            name: {{ template "clickhouse-access-secret.name" . }}
+            key: admin_password
+      admin/profile: default
+      admin/quota: default
+      admin/networks/ip:
+        - 0.0.0.0/0
+    profiles:
+      # server level settings can be set here
+      admin/data_type_default_nullable: 1 # data types in column definitions are set to Nullable by default
+      admin/insert_distributed_sync: 1 # Data is inserted in synchronous mode
+      admin/mutations_sync: 2 # query waits for all mutations to complete on all replicas
+      admin/parallel_distributed_insert_select: 2 # SELECT and INSERT will be executed on each shard in parallel
+      admin/distributed_product_mode: allow # Allows the use of these types of subqueries
+    clusters:
+      - name: {{ .Values.clickhouseServer.clusterName }}
+        layout:
+          shardsCount: {{ .Values.clickhouseServer.shardsCount }}
+          replicasCount: {{ .Values.clickhouseServer.replicasCount }}
+  templates:
+    serviceTemplates:
+      - name: svc-template
+        generateName: clickhouse-{chi}
+        metadata:
+          labels:
+            custom.label: {{ .Values.clickhouseServer.clusterName }}
+        spec:
+          internalTrafficPolicy: Cluster
+          ipFamilies:
+            - IPv4
+          ipFamilyPolicy: SingleStack
+          ports:
+            - name: http
+              port: 8123
+            - name: tcp
+              port: 9000
+          type: ClusterIP
+    podTemplates:
+      - name: clickhouse
+        podDistribution:
+          - type: ShardAntiAffinity
+          - type: ReplicaAntiAffinity
+          - type: MaxNumberPerNode
+            number: 1
+        metadata:
+           annotations:
+              prometheus.io/scrape: 'true'
+              prometheus.io/port: '7171'
+              prometheus.io/path: '/metrics'
+              prometheus.io/label_cluster_name: {{ .Values.clickhouseServer.clusterName }}
+        spec:
+          {{- if .Values.backup.enabled }}
+          serviceAccountName: {{ template "clickhouse-backup-service-account.name" . }}
+          {{- end }}
+          securityContext:
+             runAsUser: 101
+             runAsGroup: 101
+             fsGroup: 101
+          {{- if .Values.clickhouseServer.nodeSelector }}
+          nodeSelector:
+          {{ toYaml .Values.clickhouseServer.nodeSelector | nindent 12 }}
+          {{- end }}
+          {{- if .Values.clickhouseServer.tolerations }}
+          tolerations:
+          {{ toYaml .Values.clickhouseServer.tolerations | nindent 12 }}
+          {{- end }}
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - topologyKey: kubernetes.io/hostname
+                  labelSelector:
+                    matchExpressions:
+                      - key: "clickhouse.altinity.com/app"
+                        operator: In
+                        values:
+                          - "chop"
+          {{- if .Values.imagePullSecret.enabled }}
+          imagePullSecrets:
+            - name: {{ template "dockerhub-secret.name" . }}
+          {{- end }}
+          terminationGracePeriodSeconds: {{ .Values.clickhouseServer.terminationGracePeriodSeconds }}
+          containers:
+            - name: clickhouse
+              image: {{ .Values.clickhouseServer.image }}
+              command:
+                 - clickhouse-server
+                 - --config-file=/etc/clickhouse-server/config.xml
+              resources:
+                requests:
+                  memory: {{ .Values.clickhouseServer.resources.requests.memory }}
+                  cpu: {{ .Values.clickhouseServer.resources.requests.cpu }}
+                limits:
+                  memory: {{ .Values.clickhouseServer.resources.limits.memory }}
+                  cpu: {{ .Values.clickhouseServer.resources.limits.cpu }}
+              volumeMounts:
+                - name: {{ template "clickhouse-settings-configmap.name" . }}
+                  mountPath: /etc/clickhouse-server/log_rotation.xml
+                  subPath: log_rotation.xml
+                - name: {{ template "clickhouse-settings-configmap.name" . }}
+                  mountPath: /etc/clickhouse-server/storage.xml
+                  subPath: storage.xml
+                - name: {{ template "clickhouse-settings-configmap.name" . }}
+                  mountPath: /etc/clickhouse-server/dicts/dictionary.xml
+                  subPath: dictionary.xml
+            {{- if .Values.backup.enabled }}
+            - name: clickhouse-backup
+              image: {{ .Values.backup.clickhouseBackupServer.backupImage }}
+              imagePullPolicy: Always
+              command:
+                 - bash
+                 - -xc
+                 - "/bin/clickhouse-backup server --watch"
+              resources:
+                requests:
+                  memory: {{ .Values.backup.clickhouseBackupServer.resources.requests.memory }}
+                  cpu: {{ .Values.backup.clickhouseBackupServer.resources.requests.cpu }}
+                limits:
+                  memory: {{ .Values.backup.clickhouseBackupServer.resources.limits.memory }}
+                  cpu: {{ .Values.backup.clickhouseBackupServer.resources.limits.cpu }}
+              env:
+                 - name: REPLICA_ID
+                   valueFrom:
+                     fieldRef:
+                       fieldPath: metadata.labels['clickhouse.altinity.com/replica']
+                 - name: LOG_LEVEL
+                   value: "{{ .Values.backup.clickhouseBackupServer.logLevel }}"
+                 - name: API_LISTEN
+                   value: "0.0.0.0:7171"
+                 # INSERT INTO system.backup_actions to execute backup
+                 - name: API_CREATE_INTEGRATION_TABLES
+                   value: "true"
+                 # change it for production S3
+                 - name: REMOTE_STORAGE
+                   value: "s3"
+                 - name: S3_ACL
+                   value: "private"
+                 - name: S3_BUCKET
+                   value: {{ .Values.backup.clickhouseBackupServer.backupBucket }}
+                 # {shard} macro defined by clickhouse-operator
+                 - name: S3_PATH
+                   value: "{cluster}/shard{shard}/{replica}"
+                 - name: S3_REGION
+                   value: {{ .Values.backup.clickhouseBackupServer.backupBucketRegion }}
+                 - name: S3_FORCE_PATH_STYLE
+                   value: "true"
+                 - name: S3_DEBUG
+                   value: "{{ .Values.backup.clickhouseBackupServer.backupBucketDebug }}"
+                 - name: ALLOW_EMPTY_BACKUPS
+                   value: "{{ .Values.backup.clickhouseBackupServer.allowEmptyBackups }}"
+#                 - name: MAX_FILE_SIZE
+#                   value: "{{ .Values.backup.clickhouseBackupServer.maxFileSize }}"
+                 - name: BACKUPS_TO_KEEP_LOCAL
+                   value: "{{ .Values.backup.clickhouseBackupServer.keepLocal }}"
+                 - name: BACKUPS_TO_KEEP_REMOTE
+                   value: "{{ .Values.backup.clickhouseBackupServer.keepRemote }}" # count of backups on remote storage
+                 - name: WATCH_INTERVAL
+                   value: "{{ .Values.backup.clickhouseBackupServer.watchInterval }}" # how often incremental backup will be run
+                 - name: FULL_INTERVAL
+                   value: "{{ .Values.backup.clickhouseBackupServer.fullInterval }}" # how often full backup will be run
+                 - name: WATCH_BACKUP_NAME_TEMPLATE
+                   value: "{time:20060102150405}-{type}"
+#                 - name: CLICKHOUSE_SKIP_TABLES
+#                   value: "system.*,INFORMATION_SCHEMA.*,default.*"
+                 # require to avoid double scraping clickhouse and clickhouse-backup containers
+              ports:
+                 - name: backup-rest
+                   containerPort: 7171
+            {{- end }}
+          volumes:
+            - name: {{ template "clickhouse-settings-configmap.name" . }}
+              configMap:
+                name: {{ template "clickhouse-settings-configmap.name" . }}
+    volumeClaimTemplates:
+      - name: data-volume-template
+        spec:
+          storageClassName: {{ .Values.storageClass }}
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ .Values.clickhouseServer.volumes.dataVolume.size }}
+      - name: log-volume-template
+        spec:
+          storageClassName: {{ .Values.storageClass }}
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ .Values.clickhouseServer.volumes.logVolume.size }}
