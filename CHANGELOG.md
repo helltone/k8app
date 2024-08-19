@@ -89,6 +89,10 @@
 ### 0.1.1
 * fix invalid node selector rendering
 * fix invalid toleration rendering
+
+### 0.1.2
+* fix name from created secrets from external-secret
+
 ### 0.0.1
 * Added first MongoDB chart
 
