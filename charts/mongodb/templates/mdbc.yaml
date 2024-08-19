@@ -40,7 +40,7 @@ spec:
               {{- if .Values.MongoDBCommunity.resources }}
               resources: {{- toYaml .Values.MongoDBCommunity.resources | nindent 16 }}
               {{- end }}
-          {{- if .Values.MongoDBCommunity.tolerations }}
+          {{- with .Values.MongoDBCommunity.tolerations }}
           tolerations:
           {{- toYaml .Values.MongoDBCommunity.tolerations | nindent 12 }}
           {{- end }}

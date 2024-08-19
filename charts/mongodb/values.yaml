@@ -35,7 +35,7 @@ MongoDBCommunity:
     enabled: true
     username: monitoring
   tolerations: {}
-  nodeSelector: db-pool
+  nodeSelector: {}
   resources: []
   affinity:
     podAffinityRequired: false
