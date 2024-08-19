@@ -1,62 +1,55 @@
-
-MongoDBCommunity: 
-  annotations:  
+operator:
+  nodeSelector: db-pool
+MongoDBCommunity:
+  annotations:
     argocd.argoproj.io/sync-wave: "3"
-  name: mongodb-database-k8app
-  namespace: mongodb-database-k8app
+  name: mongo-database-k8app
+  namespace: databases
   members: 3
   version: "6.0.5"
   security:
     authentication:
       modes: ["SCRAM"]
   users:
-    - name: admin
+    - name: mongoroot
       db: admin
       passwordSecretRef:
-        awsSecretPath: poc/mongodb-passwod
-        name: mongodb-password
-        key: admin_password
+        awsSecretPath: /path/to/ssm/or/secret/.../mongo/password
+        name: mongoroot
+        key: mongoroot
       roles:
-        - name: clusterAdmin
+        - name: root
           db: admin
-      scramCredentialsSecretName: admin-scram
-    - name: admin2
-      db: admin2
+      scramCredentialsSecretName: mongoroot-scram
+    - name: app
+      db: admin
       passwordSecretRef:
-        awsSecretPath: poc/mongodb-password
-        name: mongodb-password2
-        key: admin_password
+        awsSecretPath: /path/to/ssm/or/secret/.../mongo/password
+        name: app
+        key: app
       roles:
-        - name: clusterAdmin
+        - name: readWriteAnyDatabase
           db: admin
-      scramCredentialsSecretName: admin-scram
+      scramCredentialsSecretName: app-scram
   additionalMongodConfig:
     journalCompressor: zlib
-
   monitoring:
     enabled: true
     username: monitoring
-
-  tolerations: 
+  tolerations:
     - key: "type"
       operator: "Equal"
       value: "mongo-db"
       effect: "NoSchedule"
-
   resources: []
-
   affinity:
     podAffinityRequired: false
-
-  
   storage:
     name: data-volume
     size: 10Gi
-
   readinessProbe:
     failureThreshold: 60
     initialDelaySeconds: 30
-    
   pdb:
     minAvailable: 2
 extSecrets:
