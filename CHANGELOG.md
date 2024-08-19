@@ -86,6 +86,9 @@
 * fix resource names collision between deployments
 * fix invalid node selector rendering
 
+### 0.1.1
+* fix invalid node selector rendering
+* fix invalid toleration rendering
 ### 0.0.1
 * Added first MongoDB chart
 
