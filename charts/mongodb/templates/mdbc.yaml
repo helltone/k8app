@@ -44,9 +44,9 @@ spec:
           tolerations:
           {{- toYaml .Values.MongoDBCommunity.tolerations | nindent 12 }}
           {{- end }}
-          {{- if .Values.operator.nodeSelector }}
+          {{- with .Values.MongoDBCommunity.nodeSelector }}
           nodeSelector:
-            {{- toYaml .Values.operator.nodeSelector | nindent 12 }}
+            {{- toYaml .Values.MongoDBCommunity.nodeSelector | nindent 12 }}
           {{- end }}
           {{- if .Values.MongoDBCommunity.imagePullSecret }}
           imagePullSecrets:

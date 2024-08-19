@@ -1,5 +1,3 @@
-operator:
-  nodeSelector: db-pool
 MongoDBCommunity:
   annotations:
     argocd.argoproj.io/sync-wave: "3"
@@ -36,11 +34,8 @@ MongoDBCommunity:
   monitoring:
     enabled: true
     username: monitoring
-  tolerations:
-    - key: "type"
-      operator: "Equal"
-      value: "mongo-db"
-      effect: "NoSchedule"
+  tolerations: {}
+  nodeSelector: db-pool
   resources: []
   affinity:
     podAffinityRequired: false
