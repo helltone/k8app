@@ -10,25 +10,15 @@ MongoDBCommunity:
       modes: ["SCRAM"]
   users:
     - name: mongoroot
-      db: admin
-      passwordSecretRef:
-        awsSecretPath: /path/to/ssm/or/secret/.../mongo/password
-        name: mongoroot
-        key: mongoroot
+      awsSecretPath: /path/to/ssm/or/secret/.../mongo/password
       roles:
         - name: root
-          db: admin
-      scramCredentialsSecretName: mongoroot-scram
     - name: app
+      awsSecretPath: /path/to/ssm/or/secret/.../mongo/password
       db: admin
-      passwordSecretRef:
-        awsSecretPath: /path/to/ssm/or/secret/.../mongo/password
-        name: app
-        key: app
       roles:
         - name: readWriteAnyDatabase
           db: admin
-      scramCredentialsSecretName: app-scram
   additionalMongodConfig:
     journalCompressor: zlib
   monitoring:

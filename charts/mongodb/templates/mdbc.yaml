@@ -76,21 +76,21 @@ spec:
       name: {{ .Values.extSecrets.monitoringCredsName }}
       key: {{ .Values.extSecrets.monitoringCredsKey }}
 {{- end }}
-{{- if .Values.MongoDBCommunity.users }}
+  {{- if .Values.MongoDBCommunity.users }}
   users:
-{{- range .Values.MongoDBCommunity.users }}
+    {{- range .Values.MongoDBCommunity.users }}
     - name: {{ .name }}
-      db: {{ .db }}
+      db: {{ default .db "admin" }}
       passwordSecretRef:
-        name: {{ .passwordSecretRef.name }}
-        key: {{ .passwordSecretRef.key }}
+        name: {{ include "user_secret_prefix" $ }}-{{ .name }}
+        key: {{ .name }}
       roles:
-{{- range .roles }}
+        {{- range .roles }}
         - name: {{ .name }}
-          db: {{ .db }}
-{{- end }}
-      scramCredentialsSecretName: {{ .scramCredentialsSecretName }}
-{{- end }}
-{{- end }}
+          db: {{ default .db "admin" }}
+        {{- end }}
+      scramCredentialsSecretName: {{ .name }}-scram
+    {{- end }}
+  {{- end }}
   additionalMongodConfig:
     storage.wiredTiger.engineConfig.journalCompressor: {{ .Values.MongoDBCommunity.additionalMongodConfig.journalCompressor }}
