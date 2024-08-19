@@ -31,13 +31,8 @@ clickhouseServer:
     limits:
       memory: 2Gi
       cpu: 2
-  nodeSelector:
-    type: db # NOTE: PLEASE SET VARIABLE.
-  tolerations:
-    - key: "type" # NOTE: PLEASE SET VARIABLE.
-      operator: "Equal"
-      value: "db" # NOTE: PLEASE SET VARIABLE.
-      effect: "NoSchedule"
+  nodeSelector: {} # NOTE: PLEASE SET VARIABLE.
+  tolerations: [] # NOTE: PLEASE SET VARIABLE.
   terminationGracePeriodSeconds: 120
   shutdownWaitUnfinished: 60
   settings:
@@ -87,10 +82,5 @@ clickhouseKeeper:
     limits:
       memory: 256Mi
       cpu: 200m
-  nodeSelector:
-    type: db # NOTE: PLEASE SET VARIABLE.
-  tolerations:
-    - key: "type" # NOTE: PLEASE SET VARIABLE.
-      operator: "Equal"
-      value: "db" # NOTE: PLEASE SET VARIABLE.
-      effect: "NoSchedule"
+  nodeSelector: {} # NOTE: PLEASE SET VARIABLE.
+  tolerations: [] # NOTE: PLEASE SET VARIABLE.

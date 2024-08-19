@@ -86,6 +86,9 @@
 
 ## Clickhouse
 
+### 0.0.3
+* Fix NodeSelector and Tolerations
+
 ### 0.0.2
 * Added usage AWS Parameter Store or AWS Secret Manager
 
