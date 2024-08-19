@@ -46,7 +46,7 @@ spec:
           {{- end }}
           {{- if .Values.operator.nodeSelector }}
           nodeSelector:
-            {{- toYaml .Values.operator.nodeSelector | nindent 8 }}
+            {{- toYaml .Values.operator.nodeSelector | nindent 12 }}
           {{- end }}
           {{- if .Values.MongoDBCommunity.imagePullSecret }}
           imagePullSecrets:
