@@ -101,6 +101,9 @@
 
 ## Clickhouse
 
+### 0.0.4
+* Add option to manage users, profiles, quotas from values.yaml
+
 ### 0.0.3
 * Fix NodeSelector and Tolerations
 

@@ -1,16 +1,4 @@
 {{/*
-  Define Clickhouse Access Secret Name. It contains uniq naming - Release Namespace
-*/}}
-
-{{- define "clickhouse-access-secret.name" -}}
-  {{- if .Values.clickhouseServer.accessSecret -}}
-    {{- .Values.clickhouseServer.accessSecret -}}
-  {{- else -}}
-    {{- printf "%s-access-secret" .Release.Namespace -}}
-  {{- end -}}
-{{- end -}}
-
-{{/*
   Define Dockerhub Secret Name. It contains uniq naming - Release Namespace
 */}}
 

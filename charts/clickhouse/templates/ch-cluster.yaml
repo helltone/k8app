@@ -21,22 +21,31 @@ spec:
         - host: {{ template "clickhouse-keeper-cluster.name" . }}
           port: 2181
     users:
-      admin/k8s_secret_password:
+  {{- range $username, $config := .Values.clickhouseServer.users }}
+      {{ $username }}/k8s_secret_password:
         valueFrom:
           secretKeyRef:
-            name: {{ template "clickhouse-access-secret.name" . }}
-            key: admin_password
-      admin/profile: default
-      admin/quota: default
-      admin/networks/ip:
-        - 0.0.0.0/0
+            name: clickhouse-user-access-{{ $.Release.Namespace }}
+            key: {{ $config.passwordFromSecret.key }}
+      {{ $username }}/profile: {{ $config.profile | quote }}
+      {{ $username }}/quota: {{ $config.quota | quote }}
+      {{ $username }}/networks/ip:
+  {{- range $ip := $config.networks }}
+        - {{ $ip | quote }}
+  {{- end }}
+  {{- end }}
     profiles:
-      # server level settings can be set here
-      admin/data_type_default_nullable: 1 # data types in column definitions are set to Nullable by default
-      admin/insert_distributed_sync: 1 # Data is inserted in synchronous mode
-      admin/mutations_sync: 2 # query waits for all mutations to complete on all replicas
-      admin/parallel_distributed_insert_select: 2 # SELECT and INSERT will be executed on each shard in parallel
-      admin/distributed_product_mode: allow # Allows the use of these types of subqueries
+  {{- range $profilename, $settings := .Values.clickhouseServer.profiles }}
+  {{- range $key, $value := $settings }}
+      {{ $profilename }}/{{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
+    quotas:
+  {{- range $quotaName, $quotaConfig := .Values.clickhouseServer.quotas }}
+  {{- range $key, $value := $quotaConfig }}
+      {{ $quotaName }}/interval/{{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- end }}
     clusters:
       - name: {{ .Values.clickhouseServer.clusterName }}
         layout:

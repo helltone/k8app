@@ -16,12 +16,11 @@ clickhouseServer:
   clusterName: "" # NOTE: PLEASE SET VARIABLE. E.q.: clickhouse-abc
   shardsCount: 1
   replicasCount: 2
-  accessSecret: "" #defined in _helpers.tpl
   externalSecretService: ParameterStore #SecretsManager
   externalSecretPath: "" # NOTE: PLEASE SET VARIABLE. E.q.: /poc/clickhouse-in-k8s/clickhouse-abc
   volumes:
     dataVolume:
-      size: 10Gi
+      size: 50Gi
     logVolume:
       size: 10Gi
   resources:
@@ -41,6 +40,44 @@ clickhouseServer:
       logRotationConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
       storageConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
       dictionaryConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
+
+  users:
+    admin:
+      passwordFromSecret:
+        key: admin_password
+      profile: admin
+      quota: default
+      networks:
+        - 0.0.0.0/0
+
+  profiles:
+    admin:
+      readonly: "0"
+      data_type_default_nullable: "1"
+      insert_distributed_sync: "1"
+      mutations_sync: "2"
+      parallel_distributed_insert_select: "2"
+      distributed_product_mode: allow
+    readonly:
+      readonly: "2"
+      max_memory_usage: "10000000000"
+      max_threads: "4"
+
+  quotas:
+    default:
+      duration: "3600"
+      errors: "0"
+      execution_time: "0"
+      queries: "0"
+      read_rows: "0"
+      result_rows: "0"
+    test:
+      duration: "3600"
+      errors: "0"
+      execution_time: "900"
+      queries: "3600"
+      read_rows: "100000000"
+      result_rows: "10000000"
 
 backup:
   enabled: false # NOTE: PLEASE CHOOSE IF YOU PLAN TO HAVE BACKUPS
