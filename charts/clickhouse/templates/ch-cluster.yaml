@@ -21,11 +21,24 @@ spec:
         - host: {{ template "clickhouse-keeper-cluster.name" . }}
           port: 2181
     users:
-  {{- range $username, $config := .Values.clickhouseServer.users }}
+  {{- range $username, $config := .Values.clickhouseServer.systemUsers }}
       {{ $username }}/k8s_secret_password:
         valueFrom:
           secretKeyRef:
-            name: clickhouse-user-access-{{ $.Release.Namespace }}
+            name: {{ template "clickhouse-system-users-access-secret.name" $ }}
+            key: {{ $config.passwordFromSecret.key }}
+      {{ $username }}/profile: {{ $config.profile | quote }}
+      {{ $username }}/quota: {{ $config.quota | quote }}
+      {{ $username }}/networks/ip:
+  {{- range $ip := $config.networks }}
+        - {{ $ip | quote }}
+  {{- end }}
+  {{- end }}
+  {{- range $username, $config := .Values.clickhouseServer.customUsers }}
+      {{ $username }}/k8s_secret_password:
+        valueFrom:
+          secretKeyRef:
+            name: {{ template "clickhouse-custom-users-access-secret.name" $ }}
             key: {{ $config.passwordFromSecret.key }}
       {{ $username }}/profile: {{ $config.profile | quote }}
       {{ $username }}/quota: {{ $config.quota | quote }}
@@ -75,7 +88,7 @@ spec:
           - type: ShardAntiAffinity
           - type: ReplicaAntiAffinity
           - type: MaxNumberPerNode
-            number: 1
+            number: {{ .Values.clickhouseServer.pdb.maxNumberPerNode }}
         metadata:
            annotations:
               prometheus.io/scrape: 'true'
@@ -193,6 +206,13 @@ spec:
                    value: "{{ .Values.backup.clickhouseBackupServer.fullInterval }}" # how often full backup will be run
                  - name: WATCH_BACKUP_NAME_TEMPLATE
                    value: "{time:20060102150405}-{type}"
+                 - name: CLICKHOUSE_USERNAME
+                   value: "{{ .Values.backup.clickhouseBackupServer.username }}"
+                 - name: CLICKHOUSE_PASSWORD
+                   valueFrom:
+                     secretKeyRef:
+                       name: {{ template "clickhouse-system-users-access-secret.name" . }}
+                       key: "{{ .Values.backup.clickhouseBackupServer.secretPasswordKey }}"
 #                 - name: CLICKHOUSE_SKIP_TABLES
 #                   value: "system.*,INFORMATION_SCHEMA.*,default.*"
                  # require to avoid double scraping clickhouse and clickhouse-backup containers

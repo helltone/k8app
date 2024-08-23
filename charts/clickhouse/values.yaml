@@ -16,8 +16,15 @@ clickhouseServer:
   clusterName: "" # NOTE: PLEASE SET VARIABLE. E.q.: clickhouse-abc
   shardsCount: 1
   replicasCount: 2
-  externalSecretService: ParameterStore #SecretsManager
-  externalSecretPath: "" # NOTE: PLEASE SET VARIABLE. E.q.: /poc/clickhouse-in-k8s/clickhouse-abc
+  pdb:
+    maxNumberPerNode: 1
+  externalSecrets:
+    service: ParameterStore #SecretsManager
+    systemUsersSecret: "" #defined in _helpers.tpl
+    systemUsersPath: "" # NOTE: PLEASE SET VARIABLE. E.q.: /poc/clickhouse-in-k8s/clickhouse-abc-system
+    customUsersSecret: "" #defined in _helpers.tpl
+    customUsersPath: "" # NOTE: PLEASE SET VARIABLE. E.q.: /poc/clickhouse-in-k8s/clickhouse-abc-custom
+
   volumes:
     dataVolume:
       size: 50Gi
@@ -41,17 +48,33 @@ clickhouseServer:
       storageConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
       dictionaryConfig: ~ # NOTE: PLEASE SET VARIABLE IF NEEDED.
 
-  users:
+  systemUsers:
     admin:
       passwordFromSecret:
         key: admin_password
-      profile: admin
+      profile: default
       quota: default
       networks:
         - 0.0.0.0/0
+#    backup:
+#      passwordFromSecret:
+#        key: backup_password
+#      profile: default
+#      quota: default
+#      networks:
+#        - 0.0.0.0/0
+
+  customUsers: {}
+#    readonly:
+#      passwordFromSecret:
+#        key: readonly_password
+#      profile: readonly
+#      quota: default
+#      networks:
+#        - 0.0.0.0/0
 
   profiles:
-    admin:
+    custom:
       readonly: "0"
       data_type_default_nullable: "1"
       insert_distributed_sync: "1"
@@ -60,7 +83,7 @@ clickhouseServer:
       distributed_product_mode: allow
     readonly:
       readonly: "2"
-      max_memory_usage: "10000000000"
+      max_memory_usage: "20000000000"
       max_threads: "4"
 
   quotas:
@@ -71,7 +94,7 @@ clickhouseServer:
       queries: "0"
       read_rows: "0"
       result_rows: "0"
-    test:
+    custom:
       duration: "3600"
       errors: "0"
       execution_time: "900"
@@ -89,6 +112,8 @@ backup:
     logLevel: info
     backupIamRole: "" # NOTE: PLEASE SET VARIABLE. E.q.: arn:aws:iam::XXXXXXXXXXX:role/eks-devops-service-poc-dev-clickhouse-backup-iam-role
     backupImage: altinity/clickhouse-backup:2.5.27
+    username: "backup"
+    secretPasswordKey: "backup_password"
     resources:
       requests:
         memory: 128Mi

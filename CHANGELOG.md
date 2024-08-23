@@ -101,6 +101,9 @@
 
 ## Clickhouse
 
+### 0.0.5
+* Split user access secrets: system and custom. NOTE: don't set password for 'default' user.
+
 ### 0.0.4
 * Add option to manage users, profiles, quotas from values.yaml
 

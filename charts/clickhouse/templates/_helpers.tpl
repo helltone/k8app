@@ -1,4 +1,28 @@
 {{/*
+  Define Clickhouse System Users Access Secret Name. It contains uniq naming - Release Namespace
+*/}}
+
+{{- define "clickhouse-system-users-access-secret.name" -}}
+  {{- if .Values.clickhouseServer.externalSecrets.systemUsersSecret -}}
+    {{- .Values.clickhouseServer.externalSecrets.systemUsersSecret -}}
+  {{- else -}}
+    {{- printf "clickhouse-system-users-access-%s" .Release.Namespace -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+  Define Clickhouse Custom Users Access Secret Name. It contains uniq naming - Release Namespace
+*/}}
+
+{{- define "clickhouse-custom-users-access-secret.name" -}}
+  {{- if .Values.clickhouseServer.externalSecrets.customUsersSecret -}}
+    {{- .Values.clickhouseServer.externalSecrets.customUsersSecret -}}
+  {{- else -}}
+    {{- printf "clickhouse-custom-users-access-%s" .Release.Namespace -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
   Define Dockerhub Secret Name. It contains uniq naming - Release Namespace
 */}}
 
