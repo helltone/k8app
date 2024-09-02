@@ -42,15 +42,23 @@ spec:
             volumeAttributes:
               secretProviderClass: {{ $appname }}-aws-secrets
     {{- end }}
-    {{- if $.Values.secretsExternal }}          
+    {{- if $.Values.secretsExternal }}
       volumes:
         - name: {{ $appname }}-external-secrets-ssm
           secret:
-            secretName: {{ $appname }}-external-secrets-ssm              
-    {{- end }}     
+            secretName: {{ $appname }}-external-secrets-ssm
+    {{- end }}
+    {{- if and (hasKey $.Values "volume") $.Values.volume.enabled }}
+      volumes:
+        - name: {{ $appname }}-pvc
+        persistentVolumeClaim:
+          readOnly: {{ $.Values.volume.mount.readOnly }}
+          claimName: {{ $appname }}-pvc
+    {{- end }}
+
       containers:
       - name: "{{ $key }}"
-        command: 
+        command:
         {{- range $value.command }}
         - {{ . }}
         {{- end }}
@@ -83,23 +91,30 @@ spec:
               key: {{ $key }}
               name: {{ $appname }}-external-secrets-ssm
         {{- end }}
-        {{- end }}        
+        {{- end }}
     {{- if $.Values.secrets }}
         volumeMounts:
           - name: secrets-store-inline
             mountPath: "/mnt/secrets-store"
     {{- end }}
-    {{- if $.Values.secretsExternal }}  
-        volumeMounts: 
+    {{- if $.Values.secretsExternal }}
+        volumeMounts:
           - name: {{ $appname }}-external-secrets-ssm
             readOnly: true
-            mountPath: "/mnt/external-secrets-ssm"            
+            mountPath: "/mnt/external-secrets-ssm"
     {{- end }}
+    {{- if and (hasKey $.Values "volume") $.Values.volume.enabled }}
+        volumeMounts:
+          - name: {{ $appname }}-pvc
+            mountPath: {{ $.Values.volume.mount.path }}
+            readOnly: {{ $.Values.volume.mount.readOnly }}
+    {{- end }}
+
         {{- if hasKey $value "image"  }}
         image: "{{ $value.image.repository }}:{{ $value.image.tag }}"
         {{- else }}
         image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
-        {{- end }}       
+        {{- end }}
         imagePullPolicy: Always
     {{- if $.Values.nodeSelector }}
       nodeSelector:
