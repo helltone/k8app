@@ -94,8 +94,12 @@ spec:
           - name: {{ $appname }}-external-secrets-ssm
             readOnly: true
             mountPath: "/mnt/external-secrets-ssm"            
-    {{- end }}     
+    {{- end }}
+        {{- if hasKey $value "image"  }}
+        image: "{{ $value.image.repository }}:{{ $value.image.tag }}"
+        {{- else }}
         image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        {{- end }}       
         imagePullPolicy: Always
     {{- if $.Values.nodeSelector }}
       nodeSelector:

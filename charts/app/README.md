@@ -79,4 +79,20 @@ spec:
     requests:
       storage: 5Gi
 ```
-
+job:
+```yaml
+job:
+  enabled: true
+  spec:
+    my-pre-install-job:
+    #image is optioanl, if you need change default image
+      image:
+        repository: alpine
+        tag: latest
+      backoffLimit: 5
+      command:
+        - "/bin/sh"
+        - "-c"
+      args:
+        - "echo 'Hello from Job!'"
+```
