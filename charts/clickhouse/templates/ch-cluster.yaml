@@ -46,6 +46,15 @@ spec:
   {{- range $ip := $config.networks }}
         - {{ $ip | quote }}
   {{- end }}
+      {{ $username }}/allow_databases/database:
+  {{- range $db := $config.databases }}
+        - {{ $db | quote }}
+  {{- end }}
+      {{ $username }}/grants/query:
+  {{- range $grant := $config.grants}}
+        - {{ $grant | quote }}
+  {{- end }}
+
   {{- end }}
     profiles:
   {{- range $profilename, $settings := .Values.clickhouseServer.profiles }}

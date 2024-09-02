@@ -101,6 +101,9 @@
 
 ## Clickhouse
 
+### 0.0.6
+* Add option to grant Access to DBs/Tables for specific users 
+
 ### 0.0.5
 * Split user access secrets: system and custom. NOTE: don't set password for 'default' user.
 

@@ -65,10 +65,36 @@ clickhouseServer:
 #        - 0.0.0.0/0
 
   customUsers: {}
-#    readonly:
+
+# NOTE: Access to specific DBs
+#    user1:
 #      passwordFromSecret:
-#        key: readonly_password
-#      profile: readonly
+#        key: user1_password
+#      profile: default
+#      quota: default
+#      networks:
+#        - 0.0.0.0/0
+#      databases:
+#        - db5
+#        - system
+
+# NOTE: Access to specific DBs and tables. Can't be used with `databases:` option.
+#    user2:
+#      passwordFromSecret:
+#        key: user2_password
+#      profile: default
+#      quota: default
+#      networks:
+#        - 0.0.0.0/0
+#      grants:
+#        - GRANT INSERT ON db5.*
+#        - GRANT SELECT ON system.zookeeper_connection
+
+# NOTE: Access to all DBs
+#    user3:
+#      passwordFromSecret:
+#        key: user3_password
+#      profile: default
 #      quota: default
 #      networks:
 #        - 0.0.0.0/0
