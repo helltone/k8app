@@ -1,4 +1,4 @@
 name: app
 description: Deployment for base pinup app
-version: 3.5.7
+version: 3.5.8
 apiVersion: v2

@@ -48,7 +48,7 @@ spec:
           secret:
             secretName: {{ $appname }}-external-secrets-ssm
     {{- end }}
-    {{- if and (hasKey $value "volume") $.Values.volume.enabled }}
+    {{- if $.Values.job.mountVolume $.Values.volume.enabled }}
       volumes:
         - name: {{ $appname }}-claim
           persistentVolumeClaim:
@@ -103,7 +103,7 @@ spec:
             readOnly: true
             mountPath: "/mnt/external-secrets-ssm"
     {{- end }}
-    {{- if and (hasKey $value "volume") $.Values.volume.enabled }}
+    {{- if $.Values.job.mountVolume $.Values.volume.enabled }}
         volumeMounts:
           - name: {{ $appname }}-claim
             mountPath: {{ $.Values.volume.mount.path }}
