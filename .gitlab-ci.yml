@@ -1,6 +1,26 @@
-
 stages:
+  - lint
   - upload
+  
+helm_template_check:
+  stage: lint
+  image: 
+    name: alpine/helm:latest
+    entrypoint: ["/bin/sh", "-c"]
+  script:
+    - |
+      for chart in charts/*; do
+        if [ -d "$chart" ]; then  
+          echo "Linting and templating $chart..."
+          helm dependency build "$chart"
+          helm lint "$chart" 
+          helm template "$chart" --values "$chart/values.yaml" --namespace default  
+        fi
+      done
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - charts/**/*  
 
 upload:
   image: 
