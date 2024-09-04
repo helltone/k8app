@@ -236,7 +236,7 @@ spec:
     volumeClaimTemplates:
       - name: data-volume-template
         spec:
-          storageClassName: {{ .Values.storageClass }}
+          storageClassName: {{ .Values.storageClass.name }}
           accessModes:
             - ReadWriteOnce
           resources:
@@ -244,7 +244,7 @@ spec:
               storage: {{ .Values.clickhouseServer.volumes.dataVolume.size }}
       - name: log-volume-template
         spec:
-          storageClassName: {{ .Values.storageClass }}
+          storageClassName: {{ .Values.storageClass.name }}
           accessModes:
             - ReadWriteOnce
           resources:

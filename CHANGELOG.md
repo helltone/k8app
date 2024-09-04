@@ -101,6 +101,9 @@
 
 ## Clickhouse
 
+### 0.0.7
+* Add separated Storage Class
+
 ### 0.0.6
 * Add option to grant Access to DBs/Tables for specific users 
 

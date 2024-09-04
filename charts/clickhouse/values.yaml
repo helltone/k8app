@@ -1,5 +1,15 @@
-storageClass: clickhouse-sc
 region: eu-central-1
+
+storageClass:
+  create: true
+  name: "" # NOTE: PLEASE SET VARIABLE. E.q.: clickhouse-abc-sc
+  encrypted: true
+  fsType: ext4
+  iops: 3000
+  throughput: 375 # (3000/1000)*125 = 375 Mb/S
+  type: gp3
+  reclaimPolicy: Retain #Delete
+  volumeBindingMode: WaitForFirstConsumer
 
 imagePullSecret:
   enabled: false
