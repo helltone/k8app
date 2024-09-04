@@ -7,8 +7,7 @@ metadata:
   annotations:
    {{- if .Values.job.mountVolume }}
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "-3"
-    "helm.sh/hook-delete-policy": "hook-succeeded"
+    "helm.sh/hook-weight": "-4"
     {{- else }}
     { }
     {{- end }}
