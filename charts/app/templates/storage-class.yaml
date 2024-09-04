@@ -5,10 +5,10 @@ kind: StorageClass
 metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
-    {{- if .Values.job.mountVolume }}
-    "helm.sh/hook": pre-install,pre-upgrade
+   {{- if .Values.job.mountVolume }}
+    "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "-3"
-    "helm.sh/hook-delete-policy": "before-hook-creation"
+    "helm.sh/hook-delete-policy": "hook-succeeded"
     {{- else }}
     { }
     {{- end }}
