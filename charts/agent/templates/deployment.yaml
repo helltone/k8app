@@ -75,6 +75,9 @@ spec:
             - mountPath: /etc/otelcol-contrib/
               name: data
               readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
@@ -84,6 +87,9 @@ spec:
         - name: varlibdockercontainers
           hostPath:
             path: /var/lib/docker/containers
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if and .Values.certs (not .Values.externalSecrets.enabled) }}
         - name: certs
           csi:

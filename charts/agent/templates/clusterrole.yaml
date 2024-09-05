@@ -34,9 +34,11 @@ rules:
   - apiGroups:
       - "extensions"
       - "networking.k8s.io"
+      - "apps"
     resources:
       - ingresses/status
       - ingresses
+      - replicasets
     verbs:
       - get
       - list

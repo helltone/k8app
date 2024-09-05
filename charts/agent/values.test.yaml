@@ -1,0 +1,56 @@
+info:
+  license: test_license
+  project: test_project
+  deployment_environment: test_deployment_environment
+
+image:
+  tag: "0.97.0"
+
+serviceAccount:
+  create: true
+
+certs: ~
+
+prometheus:
+  default:
+    enabled: false
+
+config:
+  exporters:
+    otlp/global: ~
+    logging:
+      verbosity: detailed
+    file/e2e_tests:
+      path: /tmp/testdata/otel-*.json
+      group_by:
+        enabled: true
+        resource_attribute: test_id
+  service:
+    telemetry:
+      logs:
+        level: "DEBUG"
+        development: true
+        encoding: "json"
+    pipelines:
+      traces:
+        exporters: [logging, file/e2e_tests]
+        receivers: [otlp]
+      metrics:
+        exporters: [logging, file/e2e_tests]
+        receivers: [otlp]
+      logs/logfmt:
+        exporters: [logging, file/e2e_tests]
+        receivers: [otlp]
+      logs/raw:
+        exporters: [logging, file/e2e_tests]
+        receivers: [otlp]
+
+extraVolumes:
+  - name: test-data
+    hostPath:
+      path: /tmp/testdata
+      type: DirectoryOrCreate
+
+extraVolumeMounts:
+  - mountPath: /tmp/testdata
+    name: test-data

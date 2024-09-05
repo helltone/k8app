@@ -248,9 +248,6 @@ config:
             - delete_key(attributes, "log.file.path")
     resource/tempo:
       attributes:
-        - key: "service.name"
-          from_attribute: "service"
-          action: update
         - key: "service"
           action: delete
     attributes/loki:
@@ -299,33 +296,29 @@ config:
           resource_attributes:
             - key: k8s.container.name
               value: "^.+$"
-    # must be after transform always!!!!
     resource:
       attributes:
         - key: project
-          value: "{{ .Values.info.project }}"
           action: upsert
+          value: "{{ .Values.info.project }}"
         - key: license
           action: upsert
           value: "{{ .Values.info.license }}"
-        - key: deployment_environment
+        - key: deployment.environment
+          action: upsert
           value: "{{ .Values.info.deployment_environment }}"
-          action: upsert
         - key: cluster
-          value: "{{ .Values.info.project }}/{{ .Values.info.license }}/{{ .Values.info.deployment_environment }}"
           action: upsert
-        ### to the end after namespace declaration
-        - action: upsert
+          value: "{{ .Values.info.project }}/{{ .Values.info.license }}/{{ .Values.info.deployment_environment }}"
+
+        # service.name is required for proper job name of target_info
+        - key: service.name
+          action: upsert
           from_attribute: service
-          key: service.name
-        # required for proper job name of target_info
-        - action: upsert
+        - key: service.namespace
+          action: upsert
           from_attribute: project
-          key: service.namespace
-        - key: http.scheme
-          action: delete
-        - key: net.host.port
-          action: delete
+
         # bugfix: is already exist namespace - we mustn't replace it
         # previously was in transform/metric_statements and overwrite some important system metrics from k8s
         - key: namespace
@@ -333,12 +326,18 @@ config:
           from_attribute: k8s.namespace.name
         - key: k8s.namespace.name
           action: delete
+
         # bugfix: was replace existed system pod matrix when it was already existed liable, this cased creation label pod_export
         # previously it was done by replace in prometheus job
         - key: namespace
           action: update
           from_attribute: k8s.pod.name
+
         - key: k8s.pod.name
+          action: delete
+        - key: http.scheme
+          action: delete
+        - key: net.host.port
           action: delete
     batch:
       send_batch_size: 500
@@ -375,19 +374,23 @@ config:
     pipelines:
       traces:
         receivers: [otlp]
-        processors: [memory_limiter, resource, resource/tempo, batch]
+        processors:
+          - memory_limiter
+          - resource
+          - resource/tempo
+          - batch
         exporters: [logging, otlp/global]
       metrics:
-        exporters: [logging, otlp/global]
+        receivers: [otlp, prometheus]
         processors:
           - memory_limiter
           - transform
           - resource
           - transform/metrics
           - batch/metrics
-        receivers: [otlp, prometheus]
-      logs/logfmt: &logs-pipeline
         exporters: [logging, otlp/global]
+      logs/logfmt:
+        receivers: [otlp, filelog]
         processors:
           - memory_limiter
           - filter/non-container
@@ -398,9 +401,9 @@ config:
           - resource
           - resource/loki-labels
           - batch
-        receivers: [otlp, filelog]
+        exporters: [logging, otlp/global]
       logs/raw:
-        <<: *logs-pipeline
+        receivers: [otlp, filelog]
         processors:
           - memory_limiter
           - filter/container
@@ -411,6 +414,7 @@ config:
           - resource
           - resource/loki-labels
           - batch
+        exporters: [logging, otlp/global]
 
 prometheus:
   default:
