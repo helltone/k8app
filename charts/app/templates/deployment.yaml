@@ -115,12 +115,14 @@ spec:
 {{ .Values.initContainers.args | toYaml | indent 12}}
           env:
       {{- if .Values.secrets }}
-      {{- range $key, $value := .Values.secrets }}
-            - name: {{ $key }}
-              valueFrom:
-                secretKeyRef:
-                  key: {{ $key }}
-                  name: {{ $appname }}
+      {{- range $secretKey, $secretConfig := .Values.secrets }}
+      {{- range $envVar := $secretConfig.envVars }}
+      - name: {{ $envVar }}
+        valueFrom:
+          secretKeyRef:
+            name: {{ $appname }}
+            key: {{ $secretKey }}
+      {{- end }}
       {{- end }}
       {{- end }}
       {{- if .Values.configmap }}

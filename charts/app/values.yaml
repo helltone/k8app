@@ -213,6 +213,15 @@ readinessProbe:
     port: 80
 
 secrets: {}
+#Example
+#secrets:
+#  SECRET_KEY:
+#    envVars:
+#      - ENV_VAR_1
+#      - ENV_VAR_3
+#  SECRET_URL:
+#    envVars:
+#      - ENV_VAR_2
 configmap: {}
 vaultProjectName: ""
 vaultNamespace: ""
