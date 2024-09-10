@@ -121,4 +121,24 @@ entries:
     urls:
     - https://github.com/helltone/k8app/releases/download/nats-1.0.4-rc/nats-1.0.4-rc.tgz
     version: 1.0.4-rc
-generated: "2024-09-10T16:44:55.869452959Z"
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2024-09-10T16:48:09.83804608Z"
+    dependencies:
+    - name: nats
+      repository: https://nats-io.github.io/k8s/helm/charts/
+      version: 0.19.13
+    - name: nack
+      repository: https://nats-io.github.io/k8s/helm/charts/
+      version: 0.21.0
+    - name: surveyor
+      repository: file://charts/surveyor
+      version: 0.16.2
+    description: A Helm chart for Kubernetes
+    digest: 90c7925deb869e6a2b141505be892bfd6ebab8e7af3d59eb99d9a55db9bcd319
+    name: nats
+    type: application
+    urls:
+    - https://github.com/helltone/k8app/releases/download/nats-1.0.4-rc/nats-1.0.4-rc.tgz
+    version: 1.0.4-rc
+generated: "2024-09-10T16:48:09.838075184Z"
