@@ -21,6 +21,9 @@ serviceAccountName: app  # infra should always create service account "app"
 deployment:
   enabled: true
 
+podAnnotations:
+  extra.io/path: "/call/me"
+
 rbac:
   create: false
   resources: []
@@ -79,6 +82,9 @@ prometheus:
   enabled: false
   port: "8011"
   path: "/metrics"
+
+consulinject:
+  enabled: false
 
 resources: {}
   # requests:
@@ -246,9 +252,13 @@ hpa:
   cpu: 70
   memory: 70
 
+vpa:
+  enabled: false
+  apiVersion: "autoscaling.k8s.io/v1"
+
 pdb:
   enabled: false
-  maxUnavailable: 1
+  apiVersion: "policy/v1beta1"
 
 configfiles: {}
   # mountPath: "/etc/app"
