@@ -329,6 +329,15 @@ spec:
                 key: {{ $key }}
                 name: {{ $appname }}
         {{- end }}
+        {{- if .Values.secretsEnv }}
+        {{- range $envName, $secretRef := .Values.secretsEnv }}
+        - name: {{ $envName }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $appname }}
+              key: {{ $secretRef }}
+        {{- end }}
+        {{- end }}
         {{- if $.Values.secretsExternal }}
         {{- range $key, $value := $.Values.secretsExternal }}
           - name: {{ $key }}
