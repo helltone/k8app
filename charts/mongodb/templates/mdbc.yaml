@@ -73,7 +73,7 @@ spec:
   prometheus:
     username: {{ .Values.MongoDBCommunity.monitoring.username }}
     passwordSecretRef:
-      name: {{ .Values.extSecrets.monitoringCredsName }}
+      name: {{ .Values.MongoDBCommunity.name }}-{{ .Values.extSecrets.monitoringCredsName }}
       key: {{ .Values.extSecrets.monitoringCredsKey }}
 {{- end }}
   {{- if .Values.MongoDBCommunity.users }}
