@@ -23,6 +23,14 @@ entries:
     version: 1.1.16
   app:
   - apiVersion: v2
+    created: "2024-09-11T17:23:37.454294473Z"
+    description: Deployment for base pinup app
+    digest: 9a645b2b22e404b2cdd8b224a4a5bc2d69d7f933bfbc29f21c4db0d4983780dd
+    name: app
+    urls:
+    - https://github.com/helltone/k8app/releases/download/app-3.6.4/app-3.6.4.tgz
+    version: 3.6.4
+  - apiVersion: v2
     created: "2024-09-11T17:11:46.742682916Z"
     description: Deployment for base pinup app
     digest: d54e23594e7d84ae76a8676c39c6f3f9303bd82079faca53994e9e924e886e49
@@ -228,4 +236,4 @@ entries:
     urls:
     - https://github.com/helltone/k8app/releases/download/nats-1.0.4-rc/nats-1.0.4-rc.tgz
     version: 1.0.4-rc
-generated: "2024-09-11T17:11:46.742737918Z"
+generated: "2024-09-11T17:23:37.454354325Z"
