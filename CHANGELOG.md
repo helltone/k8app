@@ -101,6 +101,9 @@
 
 ## Clickhouse
 
+### 0.0.8
+* Fix ImagePullSecret for Clickhouse Keeper
+
 ### 0.0.7
 * Add separated Storage Class
 

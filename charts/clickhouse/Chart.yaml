@@ -4,4 +4,4 @@ description: A Helm chart for Clickhouse DB
 
 type: application
 
-version: 0.0.7
+version: 0.0.8

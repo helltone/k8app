@@ -53,8 +53,10 @@ spec:
             runAsUser: 101
             runAsGroup: 101
             fsGroup: 101
+          {{- if .Values.imagePullSecret.enabled }}
           imagePullSecrets:
-            - name: {{ .Values.imagePullSecret }}
+            - name: {{ template "dockerhub-secret.name" . }}
+          {{- end }}
           containers:
             - name: clickhouse-keeper
               imagePullPolicy: IfNotPresent
