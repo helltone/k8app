@@ -3,6 +3,16 @@ entries:
   agent:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2024-09-11T16:14:22.183880219Z"
+    description: A Helm chart for Kubernetes
+    digest: a5f54122b39291c09495c4f96445babf6bbaec160916f9312b9d60aae1306ed1
+    name: agent
+    type: application
+    urls:
+    - https://github.com/helltone/k8app/releases/download/agent-1.1.20/agent-1.1.20.tgz
+    version: 1.1.20
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2024-09-10T16:44:55.642497775Z"
     description: A Helm chart for Kubernetes
     digest: c32066b3794295e5796506745bbb5b5bac713e8c98170ef655c382e3f9030956
@@ -12,6 +22,14 @@ entries:
     - https://github.com/helltone/k8app/releases/download/agent-1.1.16/agent-1.1.16.tgz
     version: 1.1.16
   app:
+  - apiVersion: v2
+    created: "2024-09-11T16:14:22.290273154Z"
+    description: Deployment for base pinup app
+    digest: 149dd1b93fa7be208bc8ecfa9132234a5792360e18b2effec1c980a1dd94e859
+    name: app
+    urls:
+    - https://github.com/helltone/k8app/releases/download/app-3.6.2/app-3.6.2.tgz
+    version: 3.6.2
   - apiVersion: v2
     created: "2024-07-01T17:14:25.494720096Z"
     description: Deployment for base pinup app
@@ -100,6 +118,47 @@ entries:
     urls:
     - https://github.com/helltone/k8app/releases/download/app-3.3.3/app-3.3.3.tgz
     version: 3.3.3
+  clickhouse:
+  - apiVersion: v2
+    created: "2024-09-11T16:14:22.409042223Z"
+    description: A Helm chart for Clickhouse DB
+    digest: 1c596898a164eea5f620caa1b285cfb1500dc4f32d5e0f40ae4a739a35cb0265
+    name: clickhouse
+    type: application
+    urls:
+    - https://github.com/helltone/k8app/releases/download/clickhouse-0.0.8/clickhouse-0.0.8.tgz
+    version: 0.0.8
+  cluster-pg:
+  - apiVersion: v2
+    created: "2024-09-11T16:14:22.545733817Z"
+    description: Deploys and manages a CloudNativePG cluster and its associated resources.
+    digest: 072c2706eac1608795b912381366202ef2cc21055fe921b3f85da82c68ee2779
+    home: https://cloudnative-pg.io
+    icon: https://raw.githubusercontent.com/cloudnative-pg/artwork/main/cloudnativepg-logo.svg
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    maintainers:
+    - email: itay+cloudnativepg-charts+github.com@grudev.com
+      name: itay-grudev
+    name: cluster-pg
+    sources:
+    - https://github.com/cloudnative-pg/charts
+    type: application
+    urls:
+    - https://github.com/helltone/k8app/releases/download/cluster-pg-0.0.10/cluster-pg-0.0.10.tgz
+    version: 0.0.10
+  mongodb:
+  - apiVersion: v2
+    created: "2024-09-11T16:14:22.645856408Z"
+    description: A Helm chart for MongoDB
+    digest: 4e56859a013b757093c34281bf66693f6762420418dc1c85a8df4813e761a246
+    name: mongodb
+    type: application
+    urls:
+    - https://github.com/helltone/k8app/releases/download/mongodb-0.1.6/mongodb-0.1.6.tgz
+    version: 0.1.6
   nats:
   - apiVersion: v2
     appVersion: 1.0.0
@@ -161,4 +220,4 @@ entries:
     urls:
     - https://github.com/helltone/k8app/releases/download/nats-1.0.4-rc/nats-1.0.4-rc.tgz
     version: 1.0.4-rc
-generated: "2024-09-10T16:53:54.755689914Z"
+generated: "2024-09-11T16:14:22.645913826Z"
