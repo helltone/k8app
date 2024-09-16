@@ -245,16 +245,18 @@ readinessProbe:
 #secretsExternal: 
 #  SECRET: "/path/in/ssm"
 secretsExternal: {}
-secrets: {}
-secretsEnv: {}
 #Example:
 #secrets:
-#  DB_PASSWORD: "path/in/paramstore"
-#  API_KEY: "other/path/in/paramstore"
-#secretsEnv:
-#  DATABASE_PASSWORD: DB_PASSWORD
-#  MY_API_KEY: API_KEY
-#  TEST: API_KEY
+#  DB_PASSWORD: 
+#    path: "path/in/paramstore"
+#    envVars:
+#      - DB_PASSWORD
+#      - BACKUP_DB_PASSWORD
+#  API_KEY: 
+#    path: "other/path/in/paramstore"
+#    envVars:
+#      - API_KEY
+#      - BACKUP_API_KEY
 configmap: {}
 vaultProjectName: ""
 vaultNamespace: ""

@@ -29,7 +29,7 @@ spec:
   parameters:
     objects: |
 {{- range $key, $value := .Values.secrets }}
-      - objectName: {{ $value | quote }}
+      - objectName: {{ $value.path | quote }}
         objectAlias: {{ $key }}
         objectType: "ssmparameter"
 {{- end }}
