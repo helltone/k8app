@@ -172,17 +172,17 @@ spec:
               apiVersion: v1
               fieldPath: status.hostIP
     {{- end }}
-    {{- if .Values.secrets }}
-    {{- $appname := printf "%s" (include "name" .) -}}
-    {{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
-      {{- range $envVar, $secretInfo := $uniqueSecrets }}
-      - name: {{ $envVar }}
-        valueFrom:
-          secretKeyRef:
-            name: {{ $appname }}
-            key: {{ $secretInfo.key }}
+      {{- if .Values.secrets }}
+      {{- $appname := printf "%s" (include "name" .) -}}
+      {{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
+        {{- range $envVar, $secretInfo := $uniqueSecrets }}
+        - name: {{ $envVar }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $appname }}
+              key: {{ $secretInfo.key }}
+        {{- end }}
       {{- end }}
-    {{- end }}
     {{- if .Values.secretsExternal }}
     {{- range $key, $value := .Values.secretsExternal }}
         - name: {{ $key }}
