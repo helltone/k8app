@@ -15,10 +15,13 @@ spec:
     - secretName: {{ $appname }}
       type: Opaque
       data:
-        {{- range $key, $_ := $uniqueSecrets }}
-        - objectName: {{ $key | quote }}
-          key: {{ $key | quote }}
-        {{- end }}
+      {{- range $envVar, $secretInfo := $uniqueSecrets }}
+      {{- if eq $envVar $secretInfo.key }}
+      - objectName: {{ $secretInfo.path | quote }}
+        objectAlias: {{ $envVar | quote }}
+        objectType: "ssmparameter"
+      {{- end }}
+      {{- end }}
   parameters:
     objects: |
       {{- range $envVar, $secretInfo := $uniqueSecrets }}
