@@ -106,15 +106,17 @@ spec:
           args:
 {{ .Values.initContainers.args | toYaml | indent 12}}
           env:
-      {{- if .Values.secrets }}
-      {{- range $key, $value := .Values.secrets }}
-            - name: {{ $key }}
-              valueFrom:
-                secretKeyRef:
-                  key: {{ $key }}
-                  name: {{ $appname }}
-      {{- end }}
-      {{- end }}
+        {{- if .Values.secrets }}
+        {{- $appname := printf "%s" (include "name" .) -}}
+        {{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
+          {{- range $envVar, $secretInfo := $uniqueSecrets }}
+          - name: {{ $envVar }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $appname }}
+                key: {{ $secretInfo.key }}
+          {{- end }}
+        {{- end }}
       {{- if .Values.secretsExternal }}
       {{- range $key, $value := .Values.secretsExternal }}
           - name: {{ $key }}
@@ -171,13 +173,15 @@ spec:
               fieldPath: status.hostIP
     {{- end }}
     {{- if .Values.secrets }}
-    {{- range $key, $value := .Values.secrets }}
-        - name: {{ $key }}
-          valueFrom:
-            secretKeyRef:
-              key: {{ $key }}
-              name: {{ $appname }}
-    {{- end }}
+    {{- $appname := printf "%s" (include "name" .) -}}
+    {{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
+      {{- range $envVar, $secretInfo := $uniqueSecrets }}
+      - name: {{ $envVar }}
+        valueFrom:
+          secretKeyRef:
+            name: {{ $appname }}
+            key: {{ $secretInfo.key }}
+      {{- end }}
     {{- end }}
     {{- if .Values.secretsExternal }}
     {{- range $key, $value := .Values.secretsExternal }}
@@ -322,12 +326,16 @@ spec:
           - name: {{ $k | upper }}
             value: {{ $v | quote }}
         {{- end }}
-        {{- range $key, $value := $.Values.secrets }}
-          - name: {{ $key }}
-            valueFrom:
-              secretKeyRef:
-                key: {{ $key }}
-                name: {{ $appname }}
+        {{- if .Values.secrets }}
+        {{- $appname := include "name" . -}}
+        {{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
+        {{- range $envVar, $secretConfig := $uniqueSecrets }}
+                - name: {{ $envVar }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ $appname }}
+                      key: {{ $secretConfig.key }}
+        {{- end }}
         {{- end }}
         {{- if $.Values.secretsExternal }}
         {{- range $key, $value := $.Values.secretsExternal }}
