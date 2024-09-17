@@ -115,28 +115,15 @@ spec:
                   name: {{ $appname }}
       {{- end }}
       {{- end }}
-      {{- if .Values.secrets }}
-      {{- range $secretName, $secretConfig := .Values.secrets }}
-        {{- range $secretConfig.envVars }}
-              - name: {{ . }}
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ $appname }}
-                    key: {{ $secretName }}
-        {{- end }}
+      {{- if .Values.secretsExternal }}
+      {{- range $key, $value := .Values.secretsExternal }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ $key }}
+                name: {{ $appname }}-external-secrets-ssm
       {{- end }}
-      {{- end }}
-      {{- if .Values.secrets }}
-      {{- range $secretName, $secretConfig := .Values.secrets }}
-        {{- range $secretConfig.envVars }}
-              - name: {{ . }}
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ $appname }}
-                    key: {{ $secretName }}
-        {{- end }}
-      {{- end }}
-      {{- end }}    
+      {{- end }}        
       {{- if .Values.configmap }}
           envFrom:
             - configMapRef:
@@ -184,14 +171,12 @@ spec:
               fieldPath: status.hostIP
     {{- end }}
     {{- if .Values.secrets }}
-    {{- range $secretName, $secretConfig := .Values.secrets }}
-      {{- range $secretConfig.envVars }}
-        - name: {{ . }}
+    {{- range $key, $value := .Values.secrets }}
+        - name: {{ $key }}
           valueFrom:
             secretKeyRef:
+              key: {{ $key }}
               name: {{ $appname }}
-              key: {{ $secretName }}
-      {{- end }}
     {{- end }}
     {{- end }}
     {{- if .Values.secretsExternal }}
@@ -337,16 +322,12 @@ spec:
           - name: {{ $k | upper }}
             value: {{ $v | quote }}
         {{- end }}
-        {{- if .Values.secrets }}
-        {{- range $secretName, $secretConfig := .Values.secrets }}
-          {{- range $secretConfig.envVars }}
-                - name: {{ . }}
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ $appname }}
-                      key: {{ $secretName }}
-          {{- end }}
-        {{- end }}
+        {{- range $key, $value := $.Values.secrets }}
+          - name: {{ $key }}
+            valueFrom:
+              secretKeyRef:
+                key: {{ $key }}
+                name: {{ $appname }}
         {{- end }}
         {{- if $.Values.secretsExternal }}
         {{- range $key, $value := $.Values.secretsExternal }}

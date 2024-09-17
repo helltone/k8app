@@ -1,5 +1,7 @@
 {{- if .Values.secrets}}
 {{- $appname := printf "%s" (include "name" .) -}}
+{{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
+{{- $uniquePaths := dict -}}
 apiVersion: secrets-store.csi.x-k8s.io/v1
 kind: SecretProviderClass
 metadata:
@@ -22,14 +24,17 @@ spec:
     - secretName: {{ $appname }}
       type: Opaque
       data:
-{{- range $key, $value := .Values.secrets }}
-        - objectName: {{ $key | quote}}
-          key: {{ $key | quote }}
+{{- range $envVar, $secretConfig := $uniqueSecrets }}
+  {{- if not (hasKey $uniquePaths $secretConfig.path) }}
+    {{- $_ := set $uniquePaths $secretConfig.path $secretConfig.key }}
+        - objectName: {{ $secretConfig.key | quote }}
+          key: {{ $secretConfig.key | quote }}
+  {{- end }}
 {{- end }}
   parameters:
     objects: |
-{{- range $key, $value := .Values.secrets }}
-      - objectName: {{ $value.path | quote }}
+{{- range $path, $key := $uniquePaths }}
+      - objectName: {{ $path | quote }}
         objectAlias: {{ $key }}
         objectType: "ssmparameter"
 {{- end }}
