@@ -63,15 +63,17 @@ spec:
       - env:
         - name: BUILD_ID
           value: {{ $root.Values.buildId | quote | default "NULL" }}
-    {{- if $root.Values.secrets }}
-    {{- range $key, $value := $root.Values.secrets }}
-        - name: {{ $key }}
-          valueFrom:
-            secretKeyRef:
-              key: {{ $key }}
-              name: {{ $appname }}
+  {{- if .Values.secrets }}
+  {{- $appname := printf "%s" (include "name" .) -}}
+  {{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
+    {{- range $envVar, $secretInfo := $uniqueSecrets }}
+    - name: {{ $envVar }}
+      valueFrom:
+        secretKeyRef:
+          name: {{ $appname }}
+          key: {{ $secretInfo.key }}
     {{- end }}
-    {{- end }}
+  {{- end }}
     {{- if $root.Values.secretsExternal }}
     {{- range $key, $value := $root.Values.secretsExternal }}
         - name: {{ $key }}

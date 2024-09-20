@@ -1,6 +1,7 @@
 {{- if .Values.job.enabled -}}
   {{- $appname := printf "%s" (include "name" .) -}}
   {{- $jobName :=  printf "%s-%s" (include "name" .) "job" -}}
+  {{- $uniqueSecrets := include "uniqueSecrets" . | fromJson -}}
   {{- range $key, $value := .Values.job.spec }}
 ---
 apiVersion: batch/v1
@@ -75,13 +76,13 @@ spec:
         - name: BUILD_ID
           value: {{ default "000" $.Values.image.tag | quote  }}
         {{- if $.Values.secrets }}
-        {{- range $key, $value := $.Values.secrets }}
-        - name: {{ $key }}
+          {{- range $envVar, $secretInfo := $uniqueSecrets }}
+        - name: {{ $envVar }}
           valueFrom:
             secretKeyRef:
-              key: "{{ $key }}"
-              name: "{{ $appname }}"
-        {{- end }}
+              name: {{ $appname }}
+              key: {{ $secretInfo.key }}
+          {{- end }}
         {{- end }}
         {{- if $.Values.secretsExternal }}
         {{- range $key, $value := $.Values.secretsExternal }}
